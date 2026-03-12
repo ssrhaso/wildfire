@@ -66,3 +66,12 @@ python inspect.py
 ```
 
 Each dataset should show image counts per class folder. If any show 0 images, check the zip extracted into the correct directory.
+
+
+## Step 5 - Run Preprocessing
+
+```bash
+python preprocess.py
+```
+
+Run the preprocessing script on the 3 datasets
