@@ -11,6 +11,7 @@ ENV/
 env.bak/
 venv.bak/
 
+data/
 data/raw
 data/processes
 checkpoints/
