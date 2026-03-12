@@ -1,0 +1,29 @@
+# CORE DEEP LEARNING
+torch>=2.2.0
+torchvision>=0.17.0
+
+# PRETRAINED models & hybrid architectures
+timm>=0.9.12  # for hybrid CNN-ViT options like CoaT, CvT
+
+# GRADCAM
+grad-cam>=1.4.8  # pytorch-grad-cam, works plug-and-play with ResNet + ViT
+
+# DATA PROCESSING
+Pillow>=10.0.0
+imagehash>=4.3.1  # perceptual hashing for deduplication
+pandas>=2.0.0
+numpy>=1.24.0
+
+# EVALUATION METRICS
+scikit-learn>=1.3.0  # classification_report, confusion_matrix, stratified splits
+
+# VISUALISATION
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# EXPERIMENT TRACKING
+wandb>=0.15.0  # Weights & Biases 
+
+# UTIL
+pyyaml>=6.0      # loading base_config.yaml
+tqdm>=4.65.0     # progress bars
