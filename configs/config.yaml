@@ -1,11 +1,10 @@
-model:
-  name: "HybridCNNViT"
-  num_classes: 3
+hybrid_model:
+  num_classes: 2
   embed_dim: 768
-  num_heads: 8
-  depth: 6
+  num_heads: 12
+  depth: 12
 
-training:
+hybrid_training:
   batch_size: 32
   learning_rate: 0.001
   epochs: 50

@@ -12,8 +12,8 @@ class HybridCNNViT(nn.Module):
         self.depth = depth
         #CNN model
         resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)# Load ResNet550
-        self.backbone = nn.Sequential(*list(resnet.children())[:-2])# reomove last two layers (avgpool and fc) to get feature maps instead of classification output
-        self.conv_proj = nn.Conv2d(in_channels=2048, out_channels=embed_dim, kernel_size=1)#reform the output of resnet to fit the input of transformer
+        self.backbone = nn.Sequential(*list(resnet.children())[:-3])# reomove last three layers (avgpool and fc) to get feature maps instead of classification output
+        self.conv_proj = nn.Conv2d(in_channels=1024, out_channels=embed_dim, kernel_size=1)#reform the output of resnet to fit the input of transformer
         #ViT model
         encoder_layer = nn.TransformerEncoderLayer(d_model=embed_dim, nhead=num_heads, batch_first=True)#initialize the transformer encoder
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=depth)
@@ -34,7 +34,7 @@ class HybridCNNViT(nn.Module):
         return logits
 
 if __name__ == "__main__":
-    model = HybridCNNViT(num_classes=3)
-    dummy_image = torch.randn(8, 2, 224, 224) # Batch of 8, 2 color channels, 224x224
+    model = HybridCNNViT(num_classes=2, embed_dim=768, num_heads=12, depth=12)
+    dummy_image = torch.randn(8, 3, 224, 224) # Batch of 8, 3 color channels, 224x224
     output = model(dummy_image)
-    print("Output shape:", output.shape) # Should be [8, 3]
+    print("Output shape:", output.shape) # Should be [8, 2]
