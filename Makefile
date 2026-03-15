@@ -11,14 +11,18 @@ donwload:
 
 unzip-linux:
 	unzip src/data/raw/flamevision-dataset-for-wildfire-classification.zip -d src/data/raw/flamevision
+	rm src/data/raw/flamevision-dataset-for-wildfire-classification.zip
 	unzip src/data/raw/fire-dataset.zip -d src/data/raw/dani215
+	rm src/data/raw/fire-dataset.zip
 	unzip src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip -d src/data/raw/minha
-	rm src/data/raw/*.zip
+	rm src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip
 
 unzip-windows:
-	powershell -Command "Expand-Archive -Force -Path 'src/data/raw/flamevision-dataset-for-wildfire-classification.zip' -DestinationPath 'src/data/raw/flamevision'"
-	powershell -Command "Expand-Archive -Force -Path 'src/data/raw/fire-dataset.zip' -DestinationPath 'src/data/raw/dani215'"
-	powershell -Command "Expand-Archive -Force -Path 'src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip' -DestinationPath 'src/data/raw/minha'"
-	powershell -Command "Remove-Item -Force -Path 'src/data/raw/*.zip'"
+	powershell -Command "New-Item -ItemType Directory -Force -Path 'src/data/raw/flamevision'; tar -xf 'src/data/raw/flamevision-dataset-for-wildfire-classification.zip' -C 'src/data/raw/flamevision'"
+	powershell -Command "Remove-Item -Force -Path 'src/data/raw/flamevision-dataset-for-wildfire-classification.zip'"
+	powershell -Command "New-Item -ItemType Directory -Force -Path 'src/data/raw/dani215'; tar -xf 'src/data/raw/fire-dataset.zip' -C 'src/data/raw/dani215'"
+	powershell -Command "Remove-Item -Force -Path 'src/data/raw/fire-dataset.zip'"
+	powershell -Command "New-Item -ItemType Directory -Force -Path 'src/data/raw/minha'; tar -xf 'src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip' -C 'src/data/raw/minha'"
+	powershell -Command "Remove-Item -Force -Path 'src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip'"
 
 .PHONY: windows linux download unzip-linux unzip-windows
