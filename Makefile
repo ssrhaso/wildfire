@@ -13,10 +13,12 @@ unzip-linux:
 	unzip src/data/raw/flamevision-dataset-for-wildfire-classification.zip -d src/data/raw/flamevision
 	unzip src/data/raw/fire-dataset.zip -d src/data/raw/dani215
 	unzip src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip -d src/data/raw/minha
+	rm src/data/raw/*.zip
 
 unzip-windows:
 	Expand-Archive -Path "flamevision-dataset-for-wildfire-classification.zip" -DestinationPath "flamevision"
 	Expand-Archive -Path "fire-dataset.zip" -DestinationPath "dani215"
 	Expand-Archive -Path "forest-fire-smoke-and-non-fire-image-dataset.zip" -DestinationPath "minha"
+	rm src/data/raw/*.zip
 
 .PHONY: windows linux download unzip-linux unzip-windows
