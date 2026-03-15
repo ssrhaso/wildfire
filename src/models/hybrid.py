@@ -10,7 +10,6 @@ class HybridCNNViT(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.depth = depth
-        
         #CNN model
         resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)# Load ResNet550
         self.backbone = nn.Sequential(*list(resnet.children())[:-2])# reomove last two layers (avgpool and fc) to get feature maps instead of classification output
