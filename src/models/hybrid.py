@@ -31,7 +31,6 @@ class HybridCNNViT(nn.Module):
         x = self.transformer(x)
         cls_output = x[:, 0, :]
         logits = self.classifier(cls_output)
-        
         return logits
 
 if __name__ == "__main__":
