@@ -16,9 +16,9 @@ unzip-linux:
 	rm src/data/raw/*.zip
 
 unzip-windows:
-	Expand-Archive -Path "src/data/raw/flamevision-dataset-for-wildfire-classification.zip" -DestinationPath "src/data/raw/flamevision"
-	Expand-Archive -Path "src/data/raw/fire-dataset.zip" -DestinationPath "src/data/raw/dani215"
-	Expand-Archive -Path "src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip" -DestinationPath "src/data/raw/minha"
-	rm src/data/raw/*.zip
+	powershell -Command "Expand-Archive -Force -Path 'src/data/raw/flamevision-dataset-for-wildfire-classification.zip' -DestinationPath 'src/data/raw/flamevision'"
+	powershell -Command "Expand-Archive -Force -Path 'src/data/raw/fire-dataset.zip' -DestinationPath 'src/data/raw/dani215'"
+	powershell -Command "Expand-Archive -Force -Path 'src/data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip' -DestinationPath 'src/data/raw/minha'"
+	powershell -Command "Remove-Item -Force -Path 'src/data/raw/*.zip'"
 
 .PHONY: windows linux download unzip-linux unzip-windows
