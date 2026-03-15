@@ -59,6 +59,24 @@ Extraction takes approximately 10 minutes.
 
 ---
 
+## Alternative Way - Using Makefile
+
+If you want an automated approach, you can use the provided `Makefile` to download and extract everything in one command from the project root. (Takes ~10 minutes to download and ~10 minutes to extract).
+
+**For Linux / Mac:**
+```bash
+make linux
+```
+*(If prompted to replace files during unzip, type `A` for All).*
+
+**For Windows:**
+```powershell
+make windows
+```
+*(If `make` isn't recognized on Windows, use `mingw32-make windows` instead).*
+
+---
+
 ## Step 4 - Verify
 
 ```bash
