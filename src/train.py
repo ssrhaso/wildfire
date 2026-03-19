@@ -9,6 +9,8 @@ import argparse
 import time
 from pathlib import Path
 from typing import Dict
+from tqdm import tqdm
+
  
 import torch
 import torch.nn as nn
@@ -62,8 +64,8 @@ def train_one_epoch(
     total = 0
     
     # ITERATE OVER BATCHES
-    for batch_index, (images,labels) in enumerate(loader):
-        
+    for batch_index, (images, labels) in enumerate(tqdm(loader, desc=f"  Epoch {epoch}")):
+
         images, labels = images.to(DEVICE), labels.to(DEVICE)
         
         optimizer.zero_grad()
