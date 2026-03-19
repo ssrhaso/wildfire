@@ -3,21 +3,23 @@ import torch.nn as nn
 import torchvision.models as models
 
 class HybridCNNViT(nn.Module):
-    def __init__(self, num_classes, embed_dim, num_heads, depth):
+    def __init__(self, num_classes, embed_dim, num_heads, depth, dropout_rate):
         super(HybridCNNViT, self).__init__()
         # Initialize the parameters for the model
         self.num_classes = num_classes
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.depth = depth
+        self.dropout_rate = dropout_rate
         #CNN model
         resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)# Load ResNet550
         self.backbone = nn.Sequential(*list(resnet.children())[:-3])# reomove last three layers (avgpool and fc) to get feature maps instead of classification output
         self.conv_proj = nn.Conv2d(in_channels=1024, out_channels=embed_dim, kernel_size=1)#reform the output of resnet to fit the input of transformer
         #ViT model
-        encoder_layer = nn.TransformerEncoderLayer(d_model=embed_dim, nhead=num_heads, batch_first=True)#initialize the transformer encoder
+        encoder_layer = nn.TransformerEncoderLayer(d_model=embed_dim, nhead=num_heads, batch_first=True, dropout=dropout_rate)#initialize the transformer encoder
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=depth)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))# create a learnable class token for the transformer
+        self.dropout = nn.Dropout(dropout_rate)
         self.classifier = nn.Linear(embed_dim, num_classes) # final linear layer to classify into Fire/Non-Fire
 
 #forward pass
@@ -30,11 +32,11 @@ class HybridCNNViT(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1) # Shape: (Batch, 50, 768)
         x = self.transformer(x)
         cls_output = x[:, 0, :]
-        logits = self.classifier(cls_output)
+        logits = self.classifier(self.dropout(cls_output))
         return logits
 
 if __name__ == "__main__":
-    model = HybridCNNViT(num_classes=2, embed_dim=768, num_heads=12, depth=12)
+    model = HybridCNNViT(num_classes=2, embed_dim=768, num_heads=12, depth=12, dropout_rate=0.1)
     dummy_image = torch.randn(8, 3, 224, 224) # Batch of 8, 3 color channels, 224x224
     output = model(dummy_image)
     print("Output shape:", output.shape) # Should be [8, 2]
