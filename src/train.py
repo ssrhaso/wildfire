@@ -70,12 +70,10 @@ def get_hybrid_settings(args: argparse.Namespace) -> Dict:
 
 
 
-""" BUILD MODELS """
 def build_model(
     args: argparse.Namespace
 ) -> nn.Module:
-    """ INITIATE MODELS with CLI Usage"""
-    
+        
     if args.model == "vit":
         return ViTClassifier(
             num_classes = 2,
@@ -95,7 +93,6 @@ def build_model(
     # else:
     raise ValueError(f"Unsupported model: {args.model}")
     
-""" TRAINING LOOP """
 def train_one_epoch(
     model : nn.Module,
     loader : torch.utils.data.DataLoader,
@@ -138,7 +135,6 @@ def train_one_epoch(
         "train_acc": correct / total,
     }
     
-""" EVALUATION LOOP """
 @torch.no_grad()
 def evaluate(
     model: nn.Module,
@@ -189,7 +185,6 @@ class EarlyStopping:
         return self.should_stop 
 
 
-""" PHASE RUNNER """
 def run_phase(
     tag: str,
     model: nn.Module,
@@ -254,7 +249,6 @@ def run_phase(
     return best_val_loss
 
 
-""" VIT TRAINING """
 def train_vit(
     args : argparse.Namespace
 ) -> None:
@@ -326,7 +320,6 @@ def train_vit(
         model_name="vit",
     )
     
-    """ TEST EVALUATION """
     best_ckpt = CHECKPOINT_DIR / "vit_phase_2_(unfrozen)_best.pt"
     if best_ckpt.exists():
         state = torch.load(best_ckpt, map_location=DEVICE, weights_only=True)
@@ -339,9 +332,7 @@ def train_vit(
           f"acc: {test_metrics['val_acc']:.4f}")
     print()
 
-""" CNN TRAINING """
 
-""" HYBRID TRAINING"""
 def train_one_epoch_hybrid(
     model : nn.Module,
     loader : torch.utils.data.DataLoader,
@@ -543,7 +534,6 @@ def train_hybrid(
     print()
 
 
-""" CLI ARGUMENTS """
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Wildfire Classification Training")
  
@@ -591,7 +581,6 @@ def parse_args() -> argparse.Namespace:
 
 
 
-""" MAIN ENTRY """
 TRAIN_DISPATCH = {
     "vit": train_vit,
     # "resnet": train_resnet,

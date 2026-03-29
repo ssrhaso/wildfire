@@ -122,3 +122,4 @@ if __name__ == "__main__":
         print(f"\n  [{name}] batch shape: {images.shape}")
         print(f"  [{name}] labels — fire: {fire}, nofire: {nofire}")
         print(f"  [{name}] pixel min: {images.min():.4f}, max: {images.max():.4f}, mean: {images.mean():.4f}")
+
