@@ -161,10 +161,10 @@ def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
 
     Freezing configs:
         freeze_none                         - all trainable
-        freeze_backbone                     - freeze CNN, train transformer+head
-        freeze_backbone_proj                - above + freeze conv projection
+        freeze_CNN                     - freeze CNN, train transformer+head
+        freeze_CNN_proj                - above + freeze conv projection
         freeze_transformer_only             - freeze transformer+CLS, train CNN+proj+head
-        freeze_backbone_proj_transformer    - freeze everything except head (linear probe)
+        freeze_CNN_proj_transformer    - freeze everything except head (linear probe)
     The classifier head (model.classifier) is never frozen.
     """
     if config not in HYBRID_CONFIGS:
@@ -175,10 +175,10 @@ def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
     if config == "freeze_none":
         pass
 
-    elif config == "freeze_backbone":
+    elif config == "freeze_CNN":
         _freeze_params(model.backbone)
 
-    elif config == "freeze_backbone_proj":
+    elif config == "freeze_CNN_proj":
         _freeze_params(model.backbone)
         _freeze_params(model.conv_proj)
 
@@ -186,7 +186,7 @@ def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
         _freeze_params(model.transformer)
         model.cls_token.requires_grad = False
 
-    elif config == "freeze_backbone_proj_transformer":
+    elif config == "freeze_CNN_proj_transformer":
         _freeze_params(model.backbone)
         _freeze_params(model.conv_proj)
         _freeze_params(model.transformer)
