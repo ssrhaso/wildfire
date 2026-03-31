@@ -20,6 +20,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 import torch.nn as nn
+from sklearn.metrics import f1_score
 from torch.optim import AdamW, SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
@@ -28,8 +29,10 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).parent))
 
 from dataset import get_dataloaders, compute_class_weights
-from freeze import apply_vit_freeze, count_parameters, get_freeze_configs
+from freeze import apply_freeze, count_parameters, get_freeze_configs
 from models.vit import ViTClassifier
+from models.resnet import ResNetClassifier
+from models.hybrid import HybridCNNViT
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -46,6 +49,16 @@ def set_seed(seed: int) -> None:
 def build_model(args: argparse.Namespace) -> nn.Module:
     if args.model == "vit":
         return ViTClassifier(num_classes=2, dropout=args.dropout, freeze_encoder=False)
+    elif args.model == "resnet":
+        return ResNetClassifier(num_classes=2, dropout=args.dropout, freeze_encoder=False)
+    elif args.model == "hybrid":
+        return HybridCNNViT(
+            num_classes=2,
+            embed_dim=args.hybrid_embed_dim,
+            num_heads=args.hybrid_num_heads,
+            depth=args.hybrid_depth,
+            dropout_rate=args.dropout,
+        )
     raise ValueError(f"Unsupported model: {args.model}")
 
 
@@ -66,27 +79,32 @@ def train_one_epoch(
     criterion: nn.Module,
     optimizer: torch.optim.Optimizer,
     epoch: int,
+    grad_accum_steps: int = 1,
 ) -> Dict[str, float]:
     model.train()
     running_loss = 0.0
     correct = 0
     total = 0
 
+    optimizer.zero_grad()
+
     for batch_idx, (images, labels) in enumerate(tqdm(loader, desc=f"  Epoch {epoch}")):
         images, labels = images.to(DEVICE), labels.to(DEVICE)
 
-        optimizer.zero_grad()
         logits = model(images)
-        loss = criterion(logits, labels)
+        loss = criterion(logits, labels) / grad_accum_steps
         loss.backward()
-        optimizer.step()
 
-        running_loss += loss.item() * images.size(0)
+        if (batch_idx + 1) % grad_accum_steps == 0 or (batch_idx + 1) == len(loader):
+            optimizer.step()
+            optimizer.zero_grad()
+
+        running_loss += loss.item() * grad_accum_steps * images.size(0)
         correct += (logits.argmax(dim=1) == labels).sum().item()
         total += images.size(0)
 
         if (batch_idx + 1) % 50 == 0:
-            print(f"    batch {batch_idx + 1}/{len(loader)} — loss: {loss.item():.4f}")
+            print(f"    batch {batch_idx + 1}/{len(loader)} - loss: {loss.item() * grad_accum_steps:.4f}")
 
     return {
         "train_loss": running_loss / total,
@@ -104,6 +122,7 @@ def evaluate(
     running_loss = 0.0
     correct = 0
     total = 0
+    all_preds, all_labels = [], []
 
     for images, labels in loader:
         images, labels = images.to(DEVICE), labels.to(DEVICE)
@@ -111,12 +130,18 @@ def evaluate(
         loss = criterion(logits, labels)
 
         running_loss += loss.item() * images.size(0)
-        correct += (logits.argmax(dim=1) == labels).sum().item()
+        preds = logits.argmax(dim=1)
+        correct += (preds == labels).sum().item()
         total += images.size(0)
+        all_preds.extend(preds.cpu().tolist())
+        all_labels.extend(labels.cpu().tolist())
 
     return {
         "val_loss": running_loss / total,
         "val_acc": correct / total,
+        "val_f1_fire": f1_score(all_labels, all_preds, pos_label=1, zero_division=0),
+        "val_f1_nofire": f1_score(all_labels, all_preds, pos_label=0, zero_division=0),
+        "val_f1_macro": f1_score(all_labels, all_preds, average="macro", zero_division=0),
     }
 
 
@@ -192,7 +217,7 @@ def run(args: argparse.Namespace) -> None:
     criterion = nn.CrossEntropyLoss(weight=weights)
 
     model = build_model(args).to(DEVICE)
-    apply_vit_freeze(model, args.freeze_config)
+    apply_freeze(model, args.model, args.freeze_config)
     param_info = count_parameters(model)
 
     optimizer = build_optimizer(model, args)
@@ -216,6 +241,8 @@ def run(args: argparse.Namespace) -> None:
         "weight_decay": args.weight_decay,
         "dropout": args.dropout,
         "batch_size": args.batch_size,
+        "grad_accum_steps": args.grad_accum_steps,
+        "effective_batch_size": args.batch_size * args.grad_accum_steps,
         "epochs_configured": args.epochs,
         "patience": args.patience,
         "num_trainable_params": param_info["trainable"],
@@ -241,16 +268,18 @@ def run(args: argparse.Namespace) -> None:
 
     best_val_loss = float("inf")
     best_val_acc = 0.0
+    best_val_f1_fire = 0.0
+    best_val_f1_macro = 0.0
     best_epoch = 0
     train_history = []
     total_start = time.time()
 
-    print(f"\n  Training — {args.epochs} epochs, patience {args.patience}\n")
+    print(f"\n  Training - {args.epochs} epochs, patience {args.patience}\n")
 
     for epoch in range(1, args.epochs + 1):
         t0 = time.time()
 
-        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, epoch)
+        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, epoch, args.grad_accum_steps)
         val_metrics = evaluate(model, val_loader, criterion)
         scheduler.step()
 
@@ -258,11 +287,13 @@ def run(args: argparse.Namespace) -> None:
         lr_current = optimizer.param_groups[0]["lr"]
 
         print(
-            f"  Epoch {epoch:>2}/{args.epochs} — "
+            f"  Epoch {epoch:>2}/{args.epochs} - "
             f"train_loss: {train_metrics['train_loss']:.4f}  "
             f"train_acc: {train_metrics['train_acc']:.4f}  "
             f"val_loss: {val_metrics['val_loss']:.4f}  "
             f"val_acc: {val_metrics['val_acc']:.4f}  "
+            f"val_f1_fire: {val_metrics['val_f1_fire']:.4f}  "
+            f"val_f1_macro: {val_metrics['val_f1_macro']:.4f}  "
             f"lr: {lr_current:.2e}  "
             f"({elapsed:.1f}s)"
         )
@@ -273,6 +304,9 @@ def run(args: argparse.Namespace) -> None:
             "train_acc": round(train_metrics["train_acc"], 6),
             "val_loss": round(val_metrics["val_loss"], 6),
             "val_acc": round(val_metrics["val_acc"], 6),
+            "val_f1_fire": round(val_metrics["val_f1_fire"], 6),
+            "val_f1_nofire": round(val_metrics["val_f1_nofire"], 6),
+            "val_f1_macro": round(val_metrics["val_f1_macro"], 6),
             "lr": lr_current,
             "epoch_time_seconds": round(elapsed, 2),
         }
@@ -284,6 +318,9 @@ def run(args: argparse.Namespace) -> None:
                 "train/acc": train_metrics["train_acc"],
                 "val/loss": val_metrics["val_loss"],
                 "val/acc": val_metrics["val_acc"],
+                "val/f1_fire": val_metrics["val_f1_fire"],
+                "val/f1_nofire": val_metrics["val_f1_nofire"],
+                "val/f1_macro": val_metrics["val_f1_macro"],
                 "lr": lr_current,
                 "epoch_time": elapsed,
                 "epoch": epoch,
@@ -292,6 +329,8 @@ def run(args: argparse.Namespace) -> None:
         if val_metrics["val_loss"] < best_val_loss:
             best_val_loss = val_metrics["val_loss"]
             best_val_acc = val_metrics["val_acc"]
+            best_val_f1_fire = val_metrics["val_f1_fire"]
+            best_val_f1_macro = val_metrics["val_f1_macro"]
             best_epoch = epoch
             torch.save({
                 "epoch": epoch,
@@ -328,9 +367,9 @@ def run(args: argparse.Namespace) -> None:
     )
     cm = confusion_matrix(all_labels, all_preds)
 
-    print(f"\n  TEST — loss: {test_metrics['val_loss']:.4f}  acc: {test_metrics['val_acc']:.4f}")
-    print(f"  Fire     — P: {report['fire']['precision']:.3f}  R: {report['fire']['recall']:.3f}  F1: {report['fire']['f1-score']:.3f}")
-    print(f"  Nofire   — P: {report['nofire']['precision']:.3f}  R: {report['nofire']['recall']:.3f}  F1: {report['nofire']['f1-score']:.3f}")
+    print(f"\n  TEST - loss: {test_metrics['val_loss']:.4f}  acc: {test_metrics['val_acc']:.4f}")
+    print(f"  Fire     - P: {report['fire']['precision']:.3f}  R: {report['fire']['recall']:.3f}  F1: {report['fire']['f1-score']:.3f}")
+    print(f"  Nofire   - P: {report['nofire']['precision']:.3f}  R: {report['nofire']['recall']:.3f}  F1: {report['nofire']['f1-score']:.3f}")
     print(f"  Total training time: {total_time:.1f}s\n")
 
     results = {
@@ -348,6 +387,8 @@ def run(args: argparse.Namespace) -> None:
         "test_confusion_matrix": cm.tolist(),
         "best_val_acc": round(best_val_acc, 6),
         "best_val_loss": round(best_val_loss, 6),
+        "best_val_f1_fire": round(best_val_f1_fire, 6),
+        "best_val_f1_macro": round(best_val_f1_macro, 6),
         "best_epoch": best_epoch,
         "total_train_time_seconds": round(total_time, 2),
         "train_history": train_history,
@@ -381,7 +422,7 @@ def run(args: argparse.Namespace) -> None:
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Freezing ablation experiment runner")
 
-    p.add_argument("--model", type=str, default="vit", choices=["vit"])
+    p.add_argument("--model", type=str, default="vit", choices=["vit", "resnet", "hybrid"])
     p.add_argument("--freeze-config", type=str, required=True)
     p.add_argument("--seed", type=int, required=True)
 
@@ -392,6 +433,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--weight-decay", type=float, default=1e-2)
     p.add_argument("--dropout", type=float, default=0.1)
     p.add_argument("--patience", type=int, default=5)
+    p.add_argument("--grad-accum-steps", type=int, default=1,
+                    help="Gradient accumulation steps (effective batch = batch_size * grad_accum_steps)")
+
+    # Hybrid-specific architecture args (ignored for vit/resnet)
+    p.add_argument("--hybrid-embed-dim", type=int, default=768)
+    p.add_argument("--hybrid-num-heads", type=int, default=12)
+    p.add_argument("--hybrid-depth", type=int, default=12)
 
     default_workers = 0 if platform.system() == "Windows" else 4
     p.add_argument("--num-workers", type=int, default=default_workers)

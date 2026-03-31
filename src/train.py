@@ -126,7 +126,7 @@ def train_one_epoch(
     
         # LOGGING EVERY 50 BATCHES
         if (batch_index + 1) % 50 == 0:
-            print(f"    batch {batch_index + 1}/{len(loader)} — "
+            print(f"    batch {batch_index + 1}/{len(loader)} - "
                   f"loss: {loss.item():.4f}")
             
         
@@ -219,7 +219,7 @@ def run_phase(
  
         # OUTPUT LOGGING
         print(
-            f"  [{tag}] Epoch {epoch:>2}/{num_epochs} — "
+            f"  [{tag}] Epoch {epoch:>2}/{num_epochs} - "
             f"train_loss: {train_metrics['train_loss']:.4f}  "
             f"train_acc: {train_metrics['train_acc']:.4f}  "
             f"val_loss: {val_metrics['val_loss']:.4f}  "
@@ -328,7 +328,7 @@ def train_vit(
  
     test_metrics = evaluate(model, test_loader, criterion)
     print()
-    print(f"  TEST — loss: {test_metrics['val_loss']:.4f}  "
+    print(f"  TEST - loss: {test_metrics['val_loss']:.4f}  "
           f"acc: {test_metrics['val_acc']:.4f}")
     print()
 
@@ -385,7 +385,7 @@ def run_phase_hybrid(
         lr_current = optimizer.param_groups[0]["lr"]
 
         print(
-            f"  [{tag}] Epoch {epoch:>2}/{num_epochs} — "
+            f"  [{tag}] Epoch {epoch:>2}/{num_epochs} - "
             f"train_loss: {train_metrics['train_loss']:.4f}  "
             f"train_acc: {train_metrics['train_acc']:.4f}  "
             f"val_loss: {val_metrics['val_loss']:.4f}  "
@@ -529,7 +529,7 @@ def train_hybrid(
 
     test_metrics = evaluate_hybrid(model, test_loader, criterion)
     print()
-    print(f"  TEST — loss: {test_metrics['val_loss']:.4f}  "
+    print(f"  TEST - loss: {test_metrics['val_loss']:.4f}  "
           f"acc: {test_metrics['val_acc']:.4f}")
     print()
 
@@ -553,11 +553,11 @@ def parse_args() -> argparse.Namespace:
  
     # LEARNING RATES
     p.add_argument("--lr-head", type=float, default=1e-3,
-                    help="Head LR — Phase 1")
+                    help="Head LR - Phase 1")
     p.add_argument("--lr-backbone", type=float, default=5e-6,
-                    help="Backbone LR — Phase 2 (ViT is LR-sensitive)")
+                    help="Backbone LR - Phase 2 (ViT is LR-sensitive)")
     p.add_argument("--lr-head-phase2", type=float, default=1e-4,
-                    help="Head LR — Phase 2")
+                    help="Head LR - Phase 2")
     p.add_argument("--weight-decay", type=float, default=1e-2)
     p.add_argument("--dropout", type=float, default=0.1)
  

@@ -14,7 +14,7 @@ class ViTClassifier(nn.Module):
     is fed to the classification head.
 
     Compared to ResNet-50, self-attention computes global pairwise interactions
-    from the first layer — useful for relating spatially separated fire/smoke regions
+    from the first layer - useful for relating spatially separated fire/smoke regions
     that local convolutions would only capture deep in the network.
 
     Two-phase training: freeze encoder and warm up the head for ~5 epochs, then
@@ -35,7 +35,7 @@ class ViTClassifier(nn.Module):
         # 768 for ViT-B; read before replacing the head
         hidden_dim: int = self.encoder.heads.head.in_features
 
-        # minimal head — [CLS] from a pre-trained encoder is already structured,
+        # minimal head - [CLS] from a pre-trained encoder is already structured,
         # a deep MLP risks overfitting on fine-tuning data
         self.encoder.heads = nn.Sequential(
             nn.Dropout(p=dropout),
@@ -52,7 +52,7 @@ class ViTClassifier(nn.Module):
                 param.requires_grad = False
         trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
         total = sum(p.numel() for p in self.parameters())
-        print(f"  [ViT] Encoder frozen — trainable: {trainable:,} / {total:,}")
+        print(f"  [ViT] Encoder frozen - trainable: {trainable:,} / {total:,}")
 
     def unfreeze_encoder(self) -> None:
         """Unfreeze all parameters for end-to-end fine-tuning (Phase 2).
@@ -67,7 +67,7 @@ class ViTClassifier(nn.Module):
             param.requires_grad = True
         trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
         total = sum(p.numel() for p in self.parameters())
-        print(f"  [ViT] Encoder unfrozen — trainable: {trainable:,} / {total:,}")
+        print(f"  [ViT] Encoder unfrozen - trainable: {trainable:,} / {total:,}")
 
     def encoder_params(self):
         return [p for n, p in self.encoder.named_parameters() if "heads" not in n]

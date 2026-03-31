@@ -106,7 +106,7 @@ def compute_class_weights(dataset: WildfireDataset) -> torch.FloatTensor:
     labels = dataset.df["label"].values
     counts = torch.bincount(torch.tensor(labels, dtype=torch.long), minlength=2).float()
     weights = len(labels) / (2.0 * counts)
-    print(f"  Class weights — nofire (0): {weights[0]:.4f}, fire (1): {weights[1]:.4f}")
+    print(f"  Class weights - nofire (0): {weights[0]:.4f}, fire (1): {weights[1]:.4f}")
     return weights
 
 
@@ -120,6 +120,6 @@ if __name__ == "__main__":
         fire = (labels == 1).sum().item()
         nofire = (labels == 0).sum().item()
         print(f"\n  [{name}] batch shape: {images.shape}")
-        print(f"  [{name}] labels — fire: {fire}, nofire: {nofire}")
+        print(f"  [{name}] labels - fire: {fire}, nofire: {nofire}")
         print(f"  [{name}] pixel min: {images.min():.4f}, max: {images.max():.4f}, mean: {images.mean():.4f}")
 

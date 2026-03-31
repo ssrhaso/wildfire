@@ -1,84 +1,83 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from torchvision.models import ResNet50_Weights
 
-class BottleneckBlock(nn.Module):
-    expansion = 4
-    def __init__(self, in_channels, out_channels, stride: int = 1):
+
+class ResNetClassifier(nn.Module):
+    """
+    ResNet-50 fine-tuned for binary wildfire classification.
+
+    Uses ImageNet-pretrained weights. The original 1000-class head is replaced
+    with a lightweight dropout + linear head for binary classification.
+
+    ResNet-50 architecture layers (for freezing reference):
+        conv1 + bn1       - initial 7x7 convolution
+        layer1             - 3 bottleneck blocks  (stride 1, 256-d)
+        layer2             - 4 bottleneck blocks  (stride 2, 512-d)
+        layer3             - 6 bottleneck blocks  (stride 2, 1024-d)
+        layer4             - 3 bottleneck blocks  (stride 2, 2048-d)
+        avgpool + fc       - global pool + classification head
+    """
+
+    def __init__(
+        self,
+        num_classes: int = 2,
+        dropout: float = 0.0,
+        freeze_encoder: bool = False,
+    ) -> None:
         super().__init__()
-        # Compress channels
-        self.conv1 = nn.Conv2d(in_channels, out_channels, 1, bias = False)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        # spatial features - apply stride
-        self.conv2 = nn.Conv2d(out_channels, out_channels, 3, stride = stride, padding = 1, bias = False)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-        # expand channels back out
-        self.conv3  = nn.Conv2d(out_channels, out_channels * self.expansion, 1, bias = False)
-        self.bn3 = nn.BatchNorm2d(out_channels * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
 
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_channels != out_channels * self.expansion:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels * self.expansion, 1, stride = stride, bias = False),
-                nn.BatchNorm2d(out_channels * self.expansion)
-            )
-    def forward (self, x):
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
+        self.encoder = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
+        hidden_dim: int = self.encoder.fc.in_features  # 2048
 
-        out = self.conv3(out)
-        out = self.bn3(out)
-        out += self.shortcut(x)
+        self.encoder.fc = nn.Sequential(
+            nn.Dropout(p=dropout),
+            nn.Linear(hidden_dim, num_classes),
+        )
 
-        return self.relu(out)
+        if freeze_encoder:
+            self.freeze_encoder()
 
-class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes: int = 2):
-        super().__init__()
-        self.in_channels = 64
+    def freeze_encoder(self) -> None:
+        """Freeze all parameters except the classification head."""
+        for name, param in self.encoder.named_parameters():
+            if "fc" not in name:
+                param.requires_grad = False
+        trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
+        total = sum(p.numel() for p in self.parameters())
+        print(f"  [ResNet] Encoder frozen - trainable: {trainable:,} / {total:,}")
 
-        # Initial conv layer
-        self.conv1 = nn.Conv2d(3, 64, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU(inplace = True)
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze all parameters for end-to-end fine-tuning."""
+        for param in self.parameters():
+            param.requires_grad = True
+        trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
+        total = sum(p.numel() for p in self.parameters())
+        print(f"  [ResNet] Encoder unfrozen - trainable: {trainable:,} / {total:,}")
 
-        # Residual layers
-        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride = 1)
-        self.layer2 = self._make_layer(block, 128, num_blocks[1], stride = 2)
-        self.layer3 = self._make_layer(block, 256, num_blocks[2], stride = 2)
-        self.layer4 = self._make_layer(block, 512, num_blocks[3], stride = 2)
+    def encoder_params(self):
+        return [p for n, p in self.encoder.named_parameters() if "fc" not in n]
 
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+    def head_params(self):
+        return list(self.encoder.fc.parameters())
 
-    def _make_layer(self, block, out_channels, num_blocks, stride):
-        # only first block strides
-        strides = [stride] + [1] * (num_blocks - 1)
-        layers = []
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.encoder(x)
 
-        for s in strides:
-            layers.append(block(self.in_channels, out_channels, s))
-            self.in_channels = out_channels * block.expansion
-        return nn.Sequential(*layers)
 
-    def forward(self, x):
-        x = self.relu(self.bn1(self.conv1(x)))
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        return self.fc(x)
-    
 if __name__ == "__main__":
-    model = ResNet(BottleneckBlock, [3, 4, 6, 3], 2)
-    dummy = torch.randn(1, 3, 64, 64) # change 1 to 8 or something higher on better machine
-    output = model(dummy)
-    print ("Output shape", output.shape) # correct output - [1, 2]
+    model = ResNetClassifier(num_classes=2, dropout=0.1, freeze_encoder=True)
+    dummy = torch.randn(4, 3, 224, 224)
+
+    logits = model(dummy)
+    print(f"  Output shape (frozen): {logits.shape}")
+    assert logits.shape == (4, 2)
+
+    model.unfreeze_encoder()
+    logits = model(dummy)
+    print(f"  Output shape (unfrozen): {logits.shape}")
+    assert logits.shape == (4, 2)
+
+    print(f"  Total parameters: {sum(p.numel() for p in model.parameters()):,}")

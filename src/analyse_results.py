@@ -30,15 +30,42 @@ CONFIG_ORDER = {
         "freeze_patch_blocks0-8",
         "freeze_patch_blocks0-11",
     ],
+    "resnet": [
+        "freeze_none",
+        "freeze_conv1",
+        "freeze_conv1_layer1",
+        "freeze_conv1_layer1-2",
+        "freeze_conv1_layer1-3",
+        "freeze_conv1_layer1-4",
+    ],
+    "hybrid": [
+        "freeze_none",
+        "freeze_backbone",
+        "freeze_backbone_proj",
+        "freeze_transformer_only",
+        "freeze_backbone_proj_transformer",
+    ],
 }
 
 CONFIG_LABELS = {
+    # ViT
     "freeze_none": "Freeze none",
     "freeze_patch": "Freeze patch",
     "freeze_patch_blocks0-3": "Freeze patch+0-3",
     "freeze_patch_blocks0-5": "Freeze patch+0-5",
     "freeze_patch_blocks0-8": "Freeze patch+0-8",
     "freeze_patch_blocks0-11": "Freeze patch+0-11",
+    # ResNet
+    "freeze_conv1": "Freeze conv1",
+    "freeze_conv1_layer1": "Freeze conv1+L1",
+    "freeze_conv1_layer1-2": "Freeze conv1+L1-2",
+    "freeze_conv1_layer1-3": "Freeze conv1+L1-3",
+    "freeze_conv1_layer1-4": "Freeze conv1+L1-4",
+    # Hybrid
+    "freeze_backbone": "Freeze backbone",
+    "freeze_backbone_proj": "Freeze backbone+proj",
+    "freeze_transformer_only": "Freeze transformer",
+    "freeze_backbone_proj_transformer": "Freeze backbone+proj+transformer",
 }
 
 
@@ -80,11 +107,17 @@ def summary_table(grouped: Dict[str, List[Dict]], config_order: List[str]) -> pd
         if config not in grouped:
             continue
         accs = np.array([r["test_acc"] for r in grouped[config]])
+        f1_fires = np.array([r.get("test_f1_fire", float("nan")) for r in grouped[config]])
+        f1_macros = np.array([
+            r.get("best_val_f1_macro", float("nan")) for r in grouped[config]
+        ])
         rows.append({
             "config": config,
             "label": CONFIG_LABELS.get(config, config),
             "mean_acc": accs.mean(),
             "std_acc": accs.std(ddof=1) if len(accs) > 1 else 0.0,
+            "mean_f1_fire": float(np.nanmean(f1_fires)),
+            "std_f1_fire": float(np.nanstd(f1_fires, ddof=1)) if len(f1_fires) > 1 else 0.0,
             "n_seeds": len(accs),
             "mean_trainable_pct": np.mean([r["trainable_pct"] for r in grouped[config]]),
         })
@@ -143,7 +176,7 @@ def plot_boxplot(
 
     fig, ax = plt.subplots(figsize=(10, 5))
     sns.boxplot(data=df, x="Config", y="Accuracy", ax=ax, palette="Set2")
-    ax.set_title(f"Test accuracy distribution — {model.upper()} freezing configs")
+    ax.set_title(f"Test accuracy distribution - {model.upper()} freezing configs")
     ax.set_xlabel("")
     ax.set_ylabel("Test Accuracy")
     ax.tick_params(axis="x", rotation=25)
@@ -187,7 +220,7 @@ def plot_val_curves(
             linewidth=1.5,
         )
 
-    ax.set_title(f"Validation accuracy comparison — {model.upper()}")
+    ax.set_title(f"Validation accuracy comparison - {model.upper()}")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Validation Accuracy")
     ax.legend(fontsize=8)
@@ -245,11 +278,99 @@ def plot_train_val_curves(
         ax.legend()
         ax.grid(alpha=0.3)
 
-    fig.suptitle(f"Training dynamics — {model.upper()}", fontsize=13)
+    fig.suptitle(f"Training dynamics - {model.upper()}", fontsize=13)
     fig.tight_layout()
 
     for fmt in ["png", "pdf"]:
         fig.savefig(output_dir / f"train_val_curves.{fmt}", dpi=300)
+    plt.close(fig)
+
+
+def plot_f1_curves(
+    grouped: Dict[str, List[Dict]],
+    config_order: List[str],
+    output_dir: Path,
+    model: str,
+) -> None:
+    """Average validation F1 (fire class) across seeds, one line per config."""
+    fig, ax = plt.subplots(figsize=(10, 5))
+    cmap = plt.get_cmap("tab10")
+
+    for i, config in enumerate(config_order):
+        if config not in grouped:
+            continue
+        runs = grouped[config]
+        max_epochs = max(len(r["train_history"]) for r in runs)
+
+        epoch_f1s = []
+        for ep in range(max_epochs):
+            f1s = [
+                r["train_history"][ep]["val_f1_fire"]
+                for r in runs
+                if ep < len(r["train_history"]) and "val_f1_fire" in r["train_history"][ep]
+            ]
+            epoch_f1s.append(np.mean(f1s) if f1s else np.nan)
+
+        if all(np.isnan(v) for v in epoch_f1s):
+            continue
+
+        ax.plot(
+            range(1, max_epochs + 1),
+            epoch_f1s,
+            label=CONFIG_LABELS.get(config, config),
+            color=cmap(i),
+            linewidth=1.5,
+        )
+
+    ax.set_title(f"Validation F1 (fire class) comparison - {model.upper()}")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("F1 Score (fire)")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+
+    for fmt in ["png", "pdf"]:
+        fig.savefig(output_dir / f"val_f1_fire_curves.{fmt}", dpi=300)
+    plt.close(fig)
+
+
+def plot_lr_schedule(
+    grouped: Dict[str, List[Dict]],
+    config_order: List[str],
+    output_dir: Path,
+    model: str,
+) -> None:
+    """Learning rate schedule per freeze config (first seed of each)."""
+    fig, ax = plt.subplots(figsize=(10, 5))
+    cmap = plt.get_cmap("tab10")
+
+    for i, config in enumerate(config_order):
+        if config not in grouped:
+            continue
+        run = grouped[config][0]
+        epochs = [h["epoch"] for h in run["train_history"]]
+        lrs = [h["lr"] for h in run["train_history"]]
+
+        ax.plot(
+            epochs,
+            lrs,
+            label=CONFIG_LABELS.get(config, config),
+            color=cmap(i),
+            linewidth=1.5,
+            marker="o",
+            markersize=3,
+        )
+
+    ax.set_title(f"Learning rate schedule per freeze config - {model.upper()}")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Learning Rate")
+    ax.set_yscale("log")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+
+    for fmt in ["png", "pdf"]:
+        fig.savefig(output_dir / f"lr_schedule.{fmt}", dpi=300)
     plt.close(fig)
 
 
@@ -296,7 +417,7 @@ def plot_confusion_matrices(
         ax.set_xlabel("Predicted")
         ax.set_ylabel("True")
 
-    fig.suptitle(f"Confusion matrices — {model.upper()}", fontsize=13)
+    fig.suptitle(f"Confusion matrices - {model.upper()}", fontsize=13)
     fig.tight_layout()
 
     for fmt in ["png", "pdf"]:
@@ -306,7 +427,7 @@ def plot_confusion_matrices(
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Analyse freezing ablation results")
-    p.add_argument("--model", type=str, default="vit", choices=["vit"])
+    p.add_argument("--model", type=str, default="vit", choices=["vit", "resnet", "hybrid"])
     p.add_argument("--results-dir", type=str, default="results")
     args = p.parse_args()
 
@@ -323,13 +444,13 @@ def main() -> None:
 
     config_order = CONFIG_ORDER.get(args.model, sorted(grouped.keys()))
 
-    print("  === Summary Table ===\n")
+    print("  Summary Table\n")
     summary_df = summary_table(grouped, config_order)
     print(summary_df.to_string(index=False))
     summary_df.to_csv(output_dir / "summary.csv", index=False)
     print(f"\n  Saved: {output_dir / 'summary.csv'}\n")
 
-    print("  === Statistical Comparisons ===\n")
+    print("  Statistical Comparisons\n")
     stats_df = statistical_tests(grouped, config_order)
     sig_df = stats_df[stats_df["significant"]]
 
@@ -341,7 +462,7 @@ def main() -> None:
     stats_df.to_csv(output_dir / "statistics.csv", index=False)
     print(f"\n  Saved: {output_dir / 'statistics.csv'}\n")
 
-    print("  === Generating Plots ===\n")
+    print("  Generating Plots\n")
 
     plot_boxplot(grouped, config_order, output_dir, args.model)
     print(f"  Saved: boxplot_accuracy.png/pdf")
@@ -351,6 +472,12 @@ def main() -> None:
 
     plot_train_val_curves(grouped, config_order, output_dir, args.model)
     print(f"  Saved: train_val_curves.png/pdf")
+
+    plot_f1_curves(grouped, config_order, output_dir, args.model)
+    print(f"  Saved: val_f1_fire_curves.png/pdf")
+
+    plot_lr_schedule(grouped, config_order, output_dir, args.model)
+    print(f"  Saved: lr_schedule.png/pdf")
 
     plot_confusion_matrices(grouped, config_order, output_dir, args.model)
     print(f"  Saved: confusion_matrices.png/pdf")

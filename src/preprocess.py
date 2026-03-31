@@ -155,18 +155,18 @@ def print_summary(df: pd.DataFrame) -> None:
 
 def main() -> None:
     """Run the full preprocessing pipeline."""
-    print("Step 1 — Collecting images...")
+    print("Step 1 - Collecting images...")
     df = collect_images()
     print(f"  Total: {len(df)}\n")
 
-    print("Step 2/3 — Verifying integrity & deduplicating...")
+    print("Step 2/3 - Verifying integrity & deduplicating...")
     df = verify_and_hash(df)
 
-    print("\nStep 4 — Stratified split (80/10/10)...")
+    print("\nStep 4 - Stratified split (80/10/10)...")
     df = stratified_split(df)
     print("  Done.\n")
 
-    print("Step 5 — Copying, renaming & resizing to 224×224...")
+    print("Step 5 - Copying, renaming & resizing to 224×224...")
     df = copy_rename_resize(df)
 
     csv_df = df[["path", "label", "split"]].copy()
@@ -179,7 +179,7 @@ def main() -> None:
     csv_df.to_csv(OUTPUT_CSV, index=False)
     print(f"\nSaved {OUTPUT_CSV}")
 
-    print("\nStep 6 — Summary")
+    print("\nStep 6 - Summary")
     print_summary(df)
 
 
