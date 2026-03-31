@@ -12,13 +12,15 @@ class HybridCNNViT(nn.Module):
         self.depth = depth
         self.dropout_rate = dropout_rate
         #CNN model
-        resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)# Load ResNet550
-        self.backbone = nn.Sequential(*list(resnet.children())[:-3])# reomove last three layers (avgpool and fc) to get feature maps instead of classification output
+        resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)# Load ResNet50
+        self.backbone = nn.Sequential(*list(resnet.children())[:-3])# reomove last three layers (avgpool, fc, layer4) to get feature maps instead of classification output
         self.conv_proj = nn.Conv2d(in_channels=1024, out_channels=embed_dim, kernel_size=1)#reform the output of resnet to fit the input of transformer
         #ViT model
+        self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))# create a learnable class token for the transformer
+        self.pos_embed = nn.Parameter(torch.randn(1, 197, embed_dim))# create positional encoding for 196 patches + 1 class token
+        self.pos_drop = nn.Dropout(p=dropout_rate)# dropout for positional encoding
         encoder_layer = nn.TransformerEncoderLayer(d_model=embed_dim, nhead=num_heads, batch_first=True, dropout=dropout_rate)#initialize the transformer encoder
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=depth)
-        self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))# create a learnable class token for the transformer
         self.dropout = nn.Dropout(dropout_rate)
         self.classifier = nn.Linear(embed_dim, num_classes) # final linear layer to classify into Fire/Non-Fire
 
@@ -29,7 +31,9 @@ class HybridCNNViT(nn.Module):
         x = self.conv_proj(x)
         x = x.flatten(2).transpose(1, 2) # Reshape the feature maps to (Batch, Sequence Length, Embedding Dimension)
         cls_tokens = self.cls_token.expand(batch_size, -1, -1)
-        x = torch.cat((cls_tokens, x), dim=1) # Shape: (Batch, 50, 768)
+        x = torch.cat((cls_tokens, x), dim=1) # Shape: (Batch, 197, 768)
+        x = x + self.pos_embed # add positional encoding to the tokens so it understands spatial reasoning
+        x = self.pos_drop(x) # apply dropout to the embeddings
         x = self.transformer(x)
         cls_output = x[:, 0, :]
         logits = self.classifier(self.dropout(cls_output))
