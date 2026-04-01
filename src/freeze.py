@@ -60,22 +60,22 @@ _RESNET_LAYER_MAP = {
 
 HYBRID_CONFIGS = [
     "freeze_none",
-    "freeze_CNN",
-    "freeze_CNN_proj",
+    "freeze_backbone",
+    "freeze_backbone_proj",
     "freeze_transformer_only",
     "freeze_transformer_proj",
-    "freeze_CNN_proj_transformer",
-    # Progressive: freeze CNN + proj + first N transformer blocks
-    "freeze_CNN_proj_blocks0-3",
-    "freeze_CNN_proj_blocks0-5",
-    "freeze_CNN_proj_blocks0-8",
-    "freeze_CNN_proj_blocks0-11",
+    "freeze_backbone_proj_transformer",
+    # Progressive: freeze backbone + proj + first N transformer blocks
+    "freeze_backbone_proj_blocks0-3",
+    "freeze_backbone_proj_blocks0-5",
+    "freeze_backbone_proj_blocks0-8",
+    "freeze_backbone_proj_blocks0-11",
     # Progressive: freeze only first N transformer blocks
     "freeze_blocks0-3",
     "freeze_blocks0-5",
     "freeze_blocks0-8",
     "freeze_blocks0-11",
-    # BN frozen variants (CNN unfrozen, but BatchNorm layers stay in eval mode)
+    # BN frozen variants (backbone unfrozen, but BatchNorm layers stay in eval mode)
     "freeze_none_bnfrozen",
     "freeze_transformer_only_bnfrozen",
     "freeze_transformer_proj_bnfrozen",
@@ -86,7 +86,7 @@ HYBRID_CONFIGS = [
 ]
 
 def _get_max_block(config: str) -> int:
-    """Extract max block index from config name like 'freeze_blocks0-8' or 'freeze_CNN_proj_blocks0-8'."""
+    """Extract max block index from config name like 'freeze_blocks0-8' or 'freeze_backbone_proj_blocks0-8'."""
     return int(config.split("blocks0-")[1])
 
 # Registry
@@ -212,12 +212,12 @@ def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
 
     Freezing configs:
         freeze_none                         - all trainable
-        freeze_CNN                          - freeze CNN, train transformer+head
-        freeze_CNN_proj                     - above + freeze conv projection
+        freeze_backbone                          - freeze CNN, train transformer+head
+        freeze_backbone_proj                     - above + freeze conv projection
         freeze_transformer_only             - freeze transformer+CLS, train CNN+proj+head
         freeze_transformer_proj             - freeze transformer+CLS+proj, train CNN+head
-        freeze_CNN_proj_transformer         - freeze everything except head (linear probe)
-        freeze_CNN_proj_blocks0-N           - freeze CNN + proj + first N+1 transformer blocks
+        freeze_backbone_proj_transformer         - freeze everything except head (linear probe)
+        freeze_backbone_proj_blocks0-N           - freeze CNN + proj + first N+1 transformer blocks
     The classifier head (model.classifier) is never frozen.
     """
     if config not in HYBRID_CONFIGS:
@@ -232,30 +232,28 @@ def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
     if base == "freeze_none":
         pass
 
-    elif base == "freeze_CNN":
+    elif base == "freeze_backbone":
         _freeze_params(model.backbone)
 
-    elif base == "freeze_CNN_proj":
+    elif base == "freeze_backbone_proj":
         _freeze_params(model.backbone)
         _freeze_params(model.conv_proj)
 
     elif base == "freeze_transformer_only":
         _freeze_params(model.transformer)
         model.cls_token.requires_grad = False
-        model.pos_embed.requires_grad = False
 
     elif base == "freeze_transformer_proj":
         _freeze_params(model.transformer)
         _freeze_params(model.conv_proj)
         model.cls_token.requires_grad = False
-        model.pos_embed.requires_grad = False
 
-    elif base == "freeze_CNN_proj_transformer":
+    elif base == "freeze_backbone_proj_transformer":
         _freeze_hybrid_base(model)
         _freeze_params(model.transformer)
 
     elif "blocks0-" in base:
-        if base.startswith("freeze_CNN_proj_"):
+        if base.startswith("freeze_backbone_proj_"):
             _freeze_hybrid_base(model)
         max_block = _get_max_block(base)
         for i in range(min(max_block + 1, len(model.transformer.layers))):
