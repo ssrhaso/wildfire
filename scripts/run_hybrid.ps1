@@ -4,7 +4,23 @@ $Configs = @(
     "freeze_backbone",
     "freeze_backbone_proj",
     "freeze_transformer_only",
-    "freeze_backbone_proj_transformer"
+    "freeze_transformer_proj",
+    "freeze_backbone_proj_transformer",
+    "freeze_backbone_proj_blocks0-3",
+    "freeze_backbone_proj_blocks0-5",
+    "freeze_backbone_proj_blocks0-8",
+    "freeze_backbone_proj_blocks0-11",
+    "freeze_blocks0-3",
+    "freeze_blocks0-5",
+    "freeze_blocks0-8",
+    "freeze_blocks0-11",
+    "freeze_none_bnfrozen",
+    "freeze_transformer_only_bnfrozen",
+    "freeze_transformer_proj_bnfrozen",
+    "freeze_blocks0-3_bnfrozen",
+    "freeze_blocks0-5_bnfrozen",
+    "freeze_blocks0-8_bnfrozen",
+    "freeze_blocks0-11_bnfrozen"
 )
 
 Write-Host "Hybrid CNN-ViT Freezing Ablation" -ForegroundColor Green
