@@ -54,9 +54,6 @@ def build_model(args: argparse.Namespace) -> nn.Module:
     elif args.model == "hybrid":
         return HybridCNNViT(
             num_classes=2,
-            embed_dim=args.hybrid_embed_dim,
-            num_heads=args.hybrid_num_heads,
-            depth=args.hybrid_depth,
             dropout_rate=args.dropout,
         )
     raise ValueError(f"Unsupported model: {args.model}")
@@ -435,12 +432,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--patience", type=int, default=5)
     p.add_argument("--grad-accum-steps", type=int, default=1,
                     help="Gradient accumulation steps (effective batch = batch_size * grad_accum_steps)")
-
-    # Hybrid-specific architecture args (ignored for vit/resnet)
-    p.add_argument("--hybrid-embed-dim", type=int, default=768)
-    p.add_argument("--hybrid-num-heads", type=int, default=12)
-    p.add_argument("--hybrid-depth", type=int, default=12)
-
     default_workers = 0 if platform.system() == "Windows" else 4
     p.add_argument("--num-workers", type=int, default=default_workers)
 

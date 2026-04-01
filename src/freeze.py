@@ -60,11 +60,34 @@ _RESNET_LAYER_MAP = {
 
 HYBRID_CONFIGS = [
     "freeze_none",
-    "freeze_backbone",
-    "freeze_backbone_proj",
+    "freeze_CNN",
+    "freeze_CNN_proj",
     "freeze_transformer_only",
-    "freeze_backbone_proj_transformer",
+    "freeze_transformer_proj",
+    "freeze_CNN_proj_transformer",
+    # Progressive: freeze CNN + proj + first N transformer blocks
+    "freeze_CNN_proj_blocks0-3",
+    "freeze_CNN_proj_blocks0-5",
+    "freeze_CNN_proj_blocks0-8",
+    "freeze_CNN_proj_blocks0-11",
+    # Progressive: freeze only first N transformer blocks
+    "freeze_blocks0-3",
+    "freeze_blocks0-5",
+    "freeze_blocks0-8",
+    "freeze_blocks0-11",
+    # BN frozen variants (CNN unfrozen, but BatchNorm layers stay in eval mode)
+    "freeze_none_bnfrozen",
+    "freeze_transformer_only_bnfrozen",
+    "freeze_transformer_proj_bnfrozen",
+    "freeze_blocks0-3_bnfrozen",
+    "freeze_blocks0-5_bnfrozen",
+    "freeze_blocks0-8_bnfrozen",
+    "freeze_blocks0-11_bnfrozen",
 ]
+
+def _get_max_block(config: str) -> int:
+    """Extract max block index from config name like 'freeze_blocks0-8' or 'freeze_CNN_proj_blocks0-8'."""
+    return int(config.split("blocks0-")[1])
 
 # Registry
 
@@ -156,15 +179,45 @@ def apply_resnet_freeze(model: ResNetClassifier, config: str) -> None:
 
 # Hybrid freezing
 
+def _freeze_batchnorm(model: HybridCNNViT) -> None:
+    """Freeze BatchNorm layers in CNN backbone and override train() to keep them in eval mode."""
+    for module in model.backbone.modules():
+        if isinstance(module, (nn.BatchNorm2d, nn.BatchNorm1d)):
+            module.eval()
+            for param in module.parameters():
+                param.requires_grad = False
+
+    # Override train() so model.train() in the training loop doesn't reset BN to train mode
+    original_train = model.train
+    def train_with_frozen_bn(mode=True):
+        original_train(mode)
+        if mode:
+            for m in model.backbone.modules():
+                if isinstance(m, (nn.BatchNorm2d, nn.BatchNorm1d)):
+                    m.eval()
+        return model
+    model.train = train_with_frozen_bn
+
+
+def _freeze_hybrid_base(model: HybridCNNViT) -> None:
+    """Freeze CNN backbone, conv projection, cls token, and positional embedding."""
+    _freeze_params(model.backbone)
+    _freeze_params(model.conv_proj)
+    model.cls_token.requires_grad = False
+    model.transformer.pos_embedding.requires_grad = False
+
+
 def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
     """Apply a named freezing configuration to Hybrid CNN-ViT.
 
     Freezing configs:
         freeze_none                         - all trainable
-        freeze_backbone                     - freeze CNN, train transformer+head
-        freeze_backbone_proj                - above + freeze conv projection
-        freeze_transformer_only             - freeze transformer+CLS+pos_embed, train CNN+proj+head
-        freeze_backbone_proj_transformer    - freeze everything except head (linear probe)
+        freeze_CNN                          - freeze CNN, train transformer+head
+        freeze_CNN_proj                     - above + freeze conv projection
+        freeze_transformer_only             - freeze transformer+CLS, train CNN+proj+head
+        freeze_transformer_proj             - freeze transformer+CLS+proj, train CNN+head
+        freeze_CNN_proj_transformer         - freeze everything except head (linear probe)
+        freeze_CNN_proj_blocks0-N           - freeze CNN + proj + first N+1 transformer blocks
     The classifier head (model.classifier) is never frozen.
     """
     if config not in HYBRID_CONFIGS:
@@ -172,27 +225,44 @@ def apply_hybrid_freeze(model: HybridCNNViT, config: str) -> None:
 
     _unfreeze_all(model)
 
-    if config == "freeze_none":
+    # Strip _bnfrozen suffix to get the base config
+    apply_bn = config.endswith("_bnfrozen")
+    base = config.removesuffix("_bnfrozen")
+
+    if base == "freeze_none":
         pass
 
-    elif config == "freeze_backbone":
+    elif base == "freeze_CNN":
         _freeze_params(model.backbone)
 
-    elif config == "freeze_backbone_proj":
+    elif base == "freeze_CNN_proj":
         _freeze_params(model.backbone)
         _freeze_params(model.conv_proj)
 
-    elif config == "freeze_transformer_only":
+    elif base == "freeze_transformer_only":
         _freeze_params(model.transformer)
         model.cls_token.requires_grad = False
         model.pos_embed.requires_grad = False
 
-    elif config == "freeze_backbone_proj_transformer":
-        _freeze_params(model.backbone)
-        _freeze_params(model.conv_proj)
+    elif base == "freeze_transformer_proj":
         _freeze_params(model.transformer)
+        _freeze_params(model.conv_proj)
         model.cls_token.requires_grad = False
         model.pos_embed.requires_grad = False
+
+    elif base == "freeze_CNN_proj_transformer":
+        _freeze_hybrid_base(model)
+        _freeze_params(model.transformer)
+
+    elif "blocks0-" in base:
+        if base.startswith("freeze_CNN_proj_"):
+            _freeze_hybrid_base(model)
+        max_block = _get_max_block(base)
+        for i in range(min(max_block + 1, len(model.transformer.layers))):
+            _freeze_params(model.transformer.layers[i])
+
+    if apply_bn:
+        _freeze_batchnorm(model)
 
     info = count_parameters(model)
     print(

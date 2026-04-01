@@ -1,8 +1,5 @@
 hybrid_model:
   num_classes: 2
-  embed_dim: 768
-  num_heads: 12
-  depth: 12
   dropout_rate: 0.1
 
 hybrid_training:
