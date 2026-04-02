@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 SEEDS="0 5 10 15 20"
 CONFIGS="freeze_none freeze_conv1 freeze_conv1_layer1 freeze_conv1_layer1-2 freeze_conv1_layer1-3 freeze_conv1_layer1-4"
 
@@ -7,6 +9,11 @@ echo ""
 
 for config in $CONFIGS; do
     for seed in $SEEDS; do
+        result="results/resnet/${config}/seed_${seed}.json"
+        if [ -f "$result" ]; then
+            echo "Skipping (done): resnet | $config | seed $seed"
+            continue
+        fi
         echo "Running: resnet | $config | seed $seed"
         python src/run_experiment.py \
             --model resnet \
