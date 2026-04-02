@@ -4,8 +4,8 @@ Comparative layer-freezing ablation study across three architectures for binary 
 
 | Model | Pretrained | Freeze Configs | Runs per model |
 |-------|-----------|----------------|----------------|
-| ViT-B/16 | ImageNet-1K | 6 (patch → blocks 0-11) | 30 (6 x 5 seeds) |
-| ResNet-50 | ImageNet-1K | 6 (conv1 → layer1-4) | 30 (6 x 5 seeds) |
+| ViT-B/16 | ImageNet-1K | 6 (patch -> blocks 0-11) | 30 (6 x 5 seeds) |
+| ResNet-50 | ImageNet-1K | 6 (conv1 -> layer1-4) | 30 (6 x 5 seeds) |
 | Hybrid CNN-ViT | ImageNet-1K (backbone) | 5 (backbone / transformer / both) | 25 (5 x 5 seeds) |
 
 ---

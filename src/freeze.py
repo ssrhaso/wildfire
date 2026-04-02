@@ -1,9 +1,9 @@
 """Freezing utilities for systematic layer freezing experiments.
 
 Implements progressive freezing configurations for:
-    - ViT-B/16:  patch embedding → transformer blocks 0-11
-    - ResNet-50: conv1 → layer1 → layer2 → layer3 → layer4
-    - Hybrid CNN-ViT: ResNet backbone → conv_proj → transformer blocks
+    - ViT-B/16:  patch embedding -> transformer blocks 0-11
+    - ResNet-50: conv1 -> layer1 -> layer2 -> layer3 -> layer4
+    - Hybrid CNN-ViT: ResNet backbone -> conv_proj -> transformer blocks
 """
 
 from typing import Dict, List
