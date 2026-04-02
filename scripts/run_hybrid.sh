@@ -13,7 +13,7 @@ for config in $CONFIGS; do
             --freeze-config "$config" \
             --seed "$seed" \
             --epochs 20 \
-            --batch-size 8 \
+            --batch-size 16 \
             --grad-accum-steps 4 \
             --num-workers 4 \
             --wandb-project wildfire-freezing
