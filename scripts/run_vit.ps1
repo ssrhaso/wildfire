@@ -1,10 +1,5 @@
 $Seeds = @(0, 5, 10, 15, 20)
 $Configs = @(
-    "freeze_none",
-    "freeze_patch",
-    "freeze_patch_blocks0-3",
-    "freeze_patch_blocks0-5",
-    "freeze_patch_blocks0-8",
     "freeze_patch_blocks0-11"
 )
 
@@ -23,7 +18,7 @@ foreach ($config in $Configs) {
             --batch-size 16 `
             --grad-accum-steps 2 `
             --num-workers 0 `
-            --wandb-project wildfire-freezing
+            --no-wandb
     }
 }
 
