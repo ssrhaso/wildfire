@@ -1,6 +1,5 @@
 $Seeds = @(0, 5, 10, 15, 20)
-$Configs = @(
-    "freeze_patch_blocks0-11"
+$Configs = @(    "freeze_patch_blocks0-11"
 )
 
 Write-Host "ViT-B/16 Freezing Ablation" -ForegroundColor Green
@@ -19,9 +18,11 @@ foreach ($config in $Configs) {
             --grad-accum-steps 2 `
             --num-workers 0 `
             --no-wandb
+roject wildfire-freezing
     }
 }
 
 Write-Host ""
 Write-Host "Running analysis" -ForegroundColor Green
-python src/analyse_results.py --model vit
+python src/analyse
+_results.py --model vit
