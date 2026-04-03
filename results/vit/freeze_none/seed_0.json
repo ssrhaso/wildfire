@@ -1,0 +1,81 @@
+{
+  "model": "vit",
+  "freeze_config": "freeze_none",
+  "seed": 0,
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 4070",
+  "optimizer": "adamw",
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "dropout": 0.1,
+  "batch_size": 16,
+  "grad_accum_steps": 1,
+  "effective_batch_size": 16,
+  "epochs_configured": 1,
+  "patience": 5,
+  "num_trainable_params": 85800194,
+  "num_frozen_params": 0,
+  "num_total_params": 85800194,
+  "trainable_pct": 100.0,
+  "dataset": {
+    "train": {
+      "total": 18847,
+      "fire": 9763,
+      "nofire": 9084
+    },
+    "val": {
+      "total": 2356,
+      "fire": 1220,
+      "nofire": 1136
+    },
+    "test": {
+      "total": 2356,
+      "fire": 1221,
+      "nofire": 1135
+    }
+  },
+  "class_weights": [
+    1.0374,
+    0.9652
+  ],
+  "epochs_completed": 1,
+  "early_stopped": false,
+  "test_acc": 0.83871,
+  "test_loss": 0.363065,
+  "test_precision_fire": 0.8361,
+  "test_recall_fire": 0.8567,
+  "test_f1_fire": 0.8463,
+  "test_precision_nofire": 0.8416,
+  "test_recall_nofire": 0.8194,
+  "test_f1_nofire": 0.8304,
+  "test_confusion_matrix": [
+    [
+      930,
+      205
+    ],
+    [
+      175,
+      1046
+    ]
+  ],
+  "best_val_acc": 0.832767,
+  "best_val_loss": 0.380639,
+  "best_val_f1_fire": 0.840227,
+  "best_val_f1_macro": 0.832402,
+  "best_epoch": 1,
+  "total_train_time_seconds": 313.08,
+  "train_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.531911,
+      "train_acc": 0.735663,
+      "val_loss": 0.380639,
+      "val_acc": 0.832767,
+      "val_f1_fire": 0.840227,
+      "val_f1_nofire": 0.824577,
+      "val_f1_macro": 0.832402,
+      "lr": 0.0,
+      "epoch_time_seconds": 312.4
+    }
+  ]
+}
