@@ -77,23 +77,34 @@ def train_one_epoch(
     optimizer: torch.optim.Optimizer,
     epoch: int,
     grad_accum_steps: int = 1,
+    scaler: torch.amp.GradScaler = None,
 ) -> Dict[str, float]:
     model.train()
     running_loss = 0.0
     correct = 0
     total = 0
+    use_amp = scaler is not None
 
     optimizer.zero_grad()
 
     for batch_idx, (images, labels) in enumerate(tqdm(loader, desc=f"  Epoch {epoch}")):
         images, labels = images.to(DEVICE), labels.to(DEVICE)
 
-        logits = model(images)
-        loss = criterion(logits, labels) / grad_accum_steps
-        loss.backward()
+        with torch.amp.autocast("cuda", enabled=use_amp):
+            logits = model(images)
+            loss = criterion(logits, labels) / grad_accum_steps
+
+        if use_amp:
+            scaler.scale(loss).backward()
+        else:
+            loss.backward()
 
         if (batch_idx + 1) % grad_accum_steps == 0 or (batch_idx + 1) == len(loader):
-            optimizer.step()
+            if use_amp:
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                optimizer.step()
             optimizer.zero_grad()
 
         running_loss += loss.item() * grad_accum_steps * images.size(0)
@@ -114,6 +125,7 @@ def evaluate(
     model: nn.Module,
     loader: DataLoader,
     criterion: nn.Module,
+    use_amp: bool = False,
 ) -> Dict[str, float]:
     model.eval()
     running_loss = 0.0
@@ -123,8 +135,9 @@ def evaluate(
 
     for images, labels in loader:
         images, labels = images.to(DEVICE), labels.to(DEVICE)
-        logits = model(images)
-        loss = criterion(logits, labels)
+        with torch.amp.autocast("cuda", enabled=use_amp):
+            logits = model(images)
+            loss = criterion(logits, labels)
 
         running_loss += loss.item() * images.size(0)
         preds = logits.argmax(dim=1)
@@ -146,12 +159,14 @@ def evaluate(
 def get_test_predictions(
     model: nn.Module,
     loader: DataLoader,
+    use_amp: bool = False,
 ) -> Tuple[List[int], List[int]]:
     model.eval()
     all_preds, all_labels = [], []
     for images, labels in loader:
         images = images.to(DEVICE)
-        logits = model(images)
+        with torch.amp.autocast("cuda", enabled=use_amp):
+            logits = model(images)
         preds = logits.argmax(dim=1)
         all_preds.extend(preds.cpu().tolist())
         all_labels.extend(labels.tolist())
@@ -200,9 +215,13 @@ def run(args: argparse.Namespace) -> None:
     else:
         gpu_name = "cpu"
 
+    use_amp = args.amp and torch.cuda.is_available()
+    scaler = torch.amp.GradScaler("cuda") if use_amp else None
+
     print(f"  Model: {args.model}")
     print(f"  Freeze config: {args.freeze_config}")
     print(f"  Seed: {args.seed}")
+    print(f"  AMP: {use_amp}")
     print()
 
     train_loader, val_loader, test_loader = get_dataloaders(
@@ -240,6 +259,7 @@ def run(args: argparse.Namespace) -> None:
         "batch_size": args.batch_size,
         "grad_accum_steps": args.grad_accum_steps,
         "effective_batch_size": args.batch_size * args.grad_accum_steps,
+        "amp": use_amp,
         "epochs_configured": args.epochs,
         "patience": args.patience,
         "num_trainable_params": param_info["trainable"],
@@ -276,8 +296,8 @@ def run(args: argparse.Namespace) -> None:
     for epoch in range(1, args.epochs + 1):
         t0 = time.time()
 
-        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, epoch, args.grad_accum_steps)
-        val_metrics = evaluate(model, val_loader, criterion)
+        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, epoch, args.grad_accum_steps, scaler)
+        val_metrics = evaluate(model, val_loader, criterion, use_amp)
         scheduler.step()
 
         elapsed = time.time() - t0
@@ -352,8 +372,8 @@ def run(args: argparse.Namespace) -> None:
     state = torch.load(ckpt_path, map_location=DEVICE, weights_only=True)
     model.load_state_dict(state["model_state_dict"])
 
-    test_metrics = evaluate(model, test_loader, criterion)
-    all_preds, all_labels = get_test_predictions(model, test_loader)
+    test_metrics = evaluate(model, test_loader, criterion, use_amp)
+    all_preds, all_labels = get_test_predictions(model, test_loader, use_amp)
 
     from sklearn.metrics import classification_report, confusion_matrix
 
@@ -432,6 +452,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--patience", type=int, default=5)
     p.add_argument("--grad-accum-steps", type=int, default=1,
                     help="Gradient accumulation steps (effective batch = batch_size * grad_accum_steps)")
+    p.add_argument("--amp", action="store_true",
+                    help="Enable mixed precision training (FP16) for faster GPU training")
     default_workers = 0 if platform.system() == "Windows" else 4
     p.add_argument("--num-workers", type=int, default=default_workers)
 

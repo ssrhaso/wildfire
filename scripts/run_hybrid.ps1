@@ -35,9 +35,9 @@ foreach ($config in $Configs) {
             --freeze-config $config `
             --seed $seed `
             --epochs 20 `
-            --batch-size 8 `
-            --grad-accum-steps 4 `
-            --num-workers 0 `
+            --batch-size 32 `
+            --amp `
+            --num-workers 4 `
             --wandb-project wildfire-freezing
     }
 }
