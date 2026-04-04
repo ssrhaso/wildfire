@@ -1,30 +1,108 @@
-# Wildfire Classification
+# Wildfire Detection: A Layer-Freezing Ablation Study
 
-Comparative layer-freezing ablation study across three architectures for binary wildfire detection.
+This project investigates how progressive layer freezing during transfer learning affects classification performance for binary wildfire detection (fire vs. no fire). Three pretrained architectures (ViT-B/16, ResNet-50, and a Hybrid CNN-ViT) are systematically evaluated across multiple freezing configurations, each repeated over five random seeds for statistical rigour. The goal is to determine how much fine-tuning is actually necessary when adapting large vision models to a domain-specific task.
 
-| Model | Pretrained | Freeze Configs | Runs per model |
-|-------|-----------|----------------|----------------|
-| ViT-B/16 | ImageNet-1K | 6 (patch -> blocks 0-11) | 30 (6 x 5 seeds) |
-| ResNet-50 | ImageNet-1K | 6 (conv1 -> layer1-4) | 30 (6 x 5 seeds) |
-| Hybrid CNN-ViT | ImageNet-1K (backbone) | 5 (backbone / transformer / both) | 25 (5 x 5 seeds) |
+## Preliminary Results
 
----
+Experiments for ViT-B/16 with all transformer blocks frozen are complete (5 seeds). Full results for all models and configurations are forthcoming.
 
-## Prerequisites
+| Model | Freeze Config | Trainable Params | Test Accuracy | Test F1 (Fire) | Seeds |
+|-------|---------------|------------------|---------------|----------------|-------|
+| ViT-B/16 | `freeze_patch_blocks0-11` | 3,074 (0.004%) | 98.33 ± 0.08% | 0.984 ± 0.001 | 5 |
+| ViT-B/16 | `freeze_none` | 85,800,194 (100%) | 83.87% | 0.846 | 1 (dry run) |
 
-* Python 3.10+
-* Kaggle account
-* ~15GB free disk space
-* GPU recommended (experiments run on CPU but are slow)
+Training only the classification head (3,074 parameters) substantially outperforms full fine-tuning in early results, suggesting that pretrained ImageNet features generalise well to wildfire imagery.
 
----
+## Dataset
 
-## Step 1 — Virtual Environment & Dependencies
+The dataset is assembled from three public Kaggle sources:
+
+1. [FlameVision](https://www.kaggle.com/datasets/warcoder/flamevision-dataset-for-wildfire-classification)
+2. [Dani215 Fire Dataset](https://www.kaggle.com/datasets/dani215/fire-dataset)
+3. [Forest Fire/Smoke (Minha)](https://www.kaggle.com/datasets/amerzishminha/forest-fire-smoke-and-non-fire-image-dataset)
+
+After deduplication via perceptual hashing and removal of corrupt files, the processed dataset contains **23,559 images** with a stratified 80/10/10 split:
+
+| Split | Fire | No Fire | Total |
+|-------|------|---------|-------|
+| Train | 9,763 | 9,084 | 18,847 |
+| Val | 1,220 | 1,136 | 2,356 |
+| Test | 1,221 | 1,135 | 2,356 |
+
+Training augmentations include random resized crop, horizontal/vertical flips, rotation, colour jitter, grayscale, Gaussian blur, and random erasing. All images are normalised using ImageNet statistics.
+
+## Architectures
+
+**ViT-B/16** uses the standard Vision Transformer with 12 encoder blocks operating on 16x16 patch embeddings (768-d). A dropout layer (p=0.1) precedes the binary classification head. Total parameters: ~85.8M.
+
+**ResNet-50** follows the standard bottleneck architecture (conv1, layers 1-4) with global average pooling. The fully connected layer is replaced with a dropout (p=0.1) and linear head. Total parameters: ~25.5M.
+
+**Hybrid CNN-ViT** uses ResNet-50 (truncated to layer3) as a feature extractor, projects CNN outputs from 1024-d to 768-d via a 1x1 convolution, then passes the resulting token sequence through 12 ViT transformer blocks. Total parameters: ~105M.
+
+All models are initialised with ImageNet-1K pretrained weights.
+
+## Freezing Configurations
+
+### ViT-B/16 (progressive transformer block freezing)
+
+| Config | What is Frozen | Trainable % |
+|--------|----------------|-------------|
+| `freeze_none` | Nothing | 100% |
+| `freeze_patch` | Patch embed + positional embed + CLS token | ~99% |
+| `freeze_patch_blocks0-3` | Above + blocks 0-3 | ~66% |
+| `freeze_patch_blocks0-5` | Above + blocks 0-5 | ~50% |
+| `freeze_patch_blocks0-8` | Above + blocks 0-8 | ~25% |
+| `freeze_patch_blocks0-11` | Above + all blocks | ~0.5% |
+
+### ResNet-50 (progressive layer freezing)
+
+| Config | What is Frozen | Trainable % |
+|--------|----------------|-------------|
+| `freeze_none` | Nothing | 100% |
+| `freeze_conv1` | conv1 + bn1 | ~99.7% |
+| `freeze_conv1_layer1` | Above + layer1 (3 blocks) | ~93% |
+| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks) | ~78% |
+| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks) | ~45% |
+| `freeze_conv1_layer1-4` | Above + layer4 (3 blocks) | ~0.1% |
+
+### Hybrid CNN-ViT (component-level freezing)
+
+| Config | What is Frozen | Trainable % |
+|--------|----------------|-------------|
+| `freeze_none` | Nothing | 100% |
+| `freeze_backbone` | ResNet backbone | ~50% |
+| `freeze_backbone_proj` | Backbone + conv projection | ~50% |
+| `freeze_transformer_only` | Transformer + CLS token | ~50% |
+| `freeze_backbone_proj_transformer` | Everything except head | ~0.01% |
+
+## Training Setup
+
+All models share the following configuration:
+
+- **Optimiser:** AdamW (lr=1e-3, weight decay=1e-2)
+- **Scheduler:** Cosine annealing (T_max=20)
+- **Loss:** Weighted cross-entropy (inverse class frequency)
+- **Epochs:** 20 (early stopping with patience=5, min delta=1e-4)
+- **Gradient accumulation:** 2 steps for ViT/ResNet, 4 steps for Hybrid (effective batch size=32)
+- **Seeds:** 0, 5, 10, 15, 20
+- **Deterministic mode:** Enabled (cudnn.deterministic=True, benchmark=False)
+- **Experiment tracking:** Weights & Biases (project: `wildfire-freezing`)
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Kaggle account and API key
+- NVIDIA GPU recommended (tested on RTX 4070)
+- ~15 GB free disk space
+
+### Setup
 
 ```bash
 python -m venv venv
 
-# Mac/Linux
+# Linux/Mac
 source venv/bin/activate
 
 # Windows
@@ -33,9 +111,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
-
-## Step 2 — Download Datasets
+### Data Download and Preprocessing
 
 ```bash
 kaggle datasets download warcoder/flamevision-dataset-for-wildfire-classification
@@ -43,81 +119,45 @@ kaggle datasets download dani215/fire-dataset
 kaggle datasets download amerzishminha/forest-fire-smoke-and-non-fire-image-dataset
 ```
 
----
+Move all zip files into `data/raw/`, then unzip:
 
-## Step 3 — Unzip Datasets
-
-Move all zips into `data/raw/`, then run:
-
-**Linux/Mac:**
 ```bash
+# Linux/Mac
 make linux
-```
 
-**Windows:**
-```powershell
+# Windows
 make windows
 ```
 
----
-
-## Step 4 — Preprocess
+Run preprocessing (deduplication, verification, split generation):
 
 ```bash
 python src/preprocess.py
 ```
 
----
+### Running Experiments
 
-## Step 5 — Run Experiments
+Each model can be run independently. All scripts are in `scripts/`.
 
-Each team member runs their assigned model. All scripts are in `scripts/`.
+```bash
+# ViT-B/16 (6 configs x 5 seeds = 30 runs)
+bash scripts/run_vit.sh          # Linux/Mac
+.\scripts\run_vit.ps1            # Windows
 
-### ViT-B/16 (6 freeze configs x 5 seeds = 30 runs)
-
-```powershell
-# Windows
-.\scripts\run_vit.ps1
-
-# Linux/Mac
-bash scripts/run_vit.sh
-```
-
-### ResNet-50 (6 freeze configs x 5 seeds = 30 runs)
-
-```powershell
-# Windows
+# ResNet-50 (6 configs x 5 seeds = 30 runs)
+bash scripts/run_resnet.sh
 .\scripts\run_resnet.ps1
 
-# Linux/Mac
-bash scripts/run_resnet.sh
-```
-
-### Hybrid CNN-ViT (5 freeze configs x 5 seeds = 25 runs)
-
-```powershell
-# Windows
+# Hybrid CNN-ViT (5 configs x 5 seeds = 25 runs)
+bash scripts/run_hybrid.sh
 .\scripts\run_hybrid.ps1
 
-# Linux/Mac
-bash scripts/run_hybrid.sh
-```
-
-### Run all models sequentially
-
-```powershell
-# Windows
-.\scripts\run_all.ps1
-
-# Linux/Mac
+# All models sequentially
 bash scripts/run_all.sh
+.\scripts\run_all.ps1
 ```
 
----
-
-## Quick Test (verify setup before full run)
-
-Run a single 1-epoch dry run to make sure everything works:
+To verify the setup with a single-epoch dry run:
 
 ```bash
 make test-vit
@@ -125,11 +165,9 @@ make test-resnet
 make test-hybrid
 ```
 
----
-
 ## Analysis
 
-Analysis runs automatically at the end of each experiment script. To re-run manually:
+Analysis runs automatically at the end of each experiment script. To regenerate manually:
 
 ```bash
 python src/analyse_results.py --model vit
@@ -137,98 +175,53 @@ python src/analyse_results.py --model resnet
 python src/analyse_results.py --model hybrid
 ```
 
-### Outputs
-
-```
-results/
-  vit/                        # per-seed JSON results
-  resnet/
-  hybrid/
-  checkpoints/                # best model weights
-  analysis/
-    vit/                      # plots + CSVs
-      summary.csv             # mean acc, F1, std per config
-      statistics.csv          # pairwise t-tests + Cohen's d
-      boxplot_accuracy.png
-      val_curves.png
-      val_f1_fire_curves.png
-      lr_schedule.png
-      train_val_curves.png
-      confusion_matrices.png
-    resnet/
-    hybrid/
-```
-
----
+Outputs are written to `results/analysis/<model>/` and include summary statistics (CSV), pairwise t-tests with Cohen's d, box plots, validation curves, learning rate schedules, and confusion matrices.
 
 ## Project Structure
 
 ```
 wildfire/
   configs/
-    config.yaml               # hybrid model architecture config
+    config.yaml                # hybrid model architecture config
   scripts/
-    run_vit.ps1 / .sh         # ViT experiment runner
+    run_vit.ps1 / .sh          # ViT experiment runner
     run_resnet.ps1 / .sh       # ResNet experiment runner
     run_hybrid.ps1 / .sh       # Hybrid experiment runner
     run_all.ps1 / .sh          # all models sequentially
   src/
     dataset.py                 # WildfireDataset + DataLoaders
-    preprocess.py              # raw data preprocessing
+    preprocess.py              # raw data preprocessing + deduplication
     freeze.py                  # freezing configs for all 3 models
     run_experiment.py          # single-run training script
     analyse_results.py         # statistical analysis + plots
-    train.py                   # legacy two-phase training script
-    evaluate.py
-    gradcam.py
+    evaluate.py                # evaluation utilities
+    gradcam.py                 # Grad-CAM visualisation
     models/
       vit.py                   # ViT-B/16 classifier
       resnet.py                # ResNet-50 classifier
       hybrid.py                # Hybrid CNN-ViT classifier
+  results/
+    vit/                       # per-seed JSON results
+    resnet/
+    hybrid/
+    checkpoints/               # best model weights per config
+    analysis/                  # plots + summary CSVs
   Makefile
   requirements.txt
 ```
 
----
+## Current Status
 
-## Experiment Details
+- ViT-B/16 `freeze_patch_blocks0-11`: complete (5/5 seeds)
+- ViT-B/16 `freeze_none`: complete (1 seed, dry run only)
+- ViT-B/16 remaining configs: in progress
+- ResNet-50: not yet started
+- Hybrid CNN-ViT: not yet started
 
-**Shared across all models:**
-- Seeds: `0, 5, 10, 15, 20`
-- Epochs: 20 (with early stopping, patience=5)
-- Optimizer: AdamW (lr=1e-3, weight_decay=1e-2)
-- Scheduler: Cosine annealing
-- Loss: Weighted CrossEntropyLoss (inverse class frequency)
-- Metrics logged per epoch: loss, accuracy, F1 (fire/nofire/macro)
-- Gradient accumulation: 2 steps for ViT/ResNet (eff. batch=32), 4 steps for Hybrid (eff. batch=32)
+## Future Work
 
-### Freeze Configurations
-
-**ViT-B/16** — progressive transformer block freezing:
-| Config | What's frozen | Trainable % |
-|--------|--------------|-------------|
-| `freeze_none` | nothing | 100% |
-| `freeze_patch` | patch embed + pos embed + CLS | ~99% |
-| `freeze_patch_blocks0-3` | above + blocks 0-3 | ~66% |
-| `freeze_patch_blocks0-5` | above + blocks 0-5 | ~50% |
-| `freeze_patch_blocks0-8` | above + blocks 0-8 | ~25% |
-| `freeze_patch_blocks0-11` | above + all blocks | ~0.5% |
-
-**ResNet-50** — progressive layer freezing:
-| Config | What's frozen | Trainable % |
-|--------|--------------|-------------|
-| `freeze_none` | nothing | 100% |
-| `freeze_conv1` | conv1 + bn1 | ~99.7% |
-| `freeze_conv1_layer1` | above + layer1 (3 blocks) | ~93% |
-| `freeze_conv1_layer1-2` | above + layer2 (4 blocks) | ~78% |
-| `freeze_conv1_layer1-3` | above + layer3 (6 blocks) | ~45% |
-| `freeze_conv1_layer1-4` | above + layer4 (3 blocks) | ~0.1% |
-
-**Hybrid CNN-ViT** — component-level freezing:
-| Config | What's frozen | What's trainable | Trainable % |
-|--------|--------------|-----------------|-------------|
-| `freeze_none` | nothing | everything | 100% |
-| `freeze_backbone` | ResNet backbone | transformer + proj + head | ~50% |
-| `freeze_backbone_proj` | backbone + conv projection | transformer + head | ~50% |
-| `freeze_transformer_only` | transformer + CLS token | backbone + proj + head | ~50% |
-| `freeze_backbone_proj_transformer` | everything except head | head only | ~0.01% |
+- Complete all freezing ablation runs across the three architectures (85 total)
+- Conduct pairwise statistical comparisons (Welch's t-test, Cohen's d) across configurations
+- Generate Grad-CAM visualisations to interpret what each model attends to at different freezing levels
+- Investigate whether BatchNorm freezing behaviour in the Hybrid model affects convergence
+- Explore progressive unfreezing schedules as an alternative to static freezing
