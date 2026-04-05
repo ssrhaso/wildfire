@@ -2,24 +2,22 @@ model: vit
 
 # Training
 epochs: 20
-batch_size: 16
+batch_size: 128
 optimizer: adamw
 lr: 0.001
 weight_decay: 0.01
 dropout: 0.1
 patience: 5
-grad_accum_steps: 2
+grad_accum_steps: 1
 num_workers: 4
 
 # Experiment
 seeds: [0, 5, 10, 15, 20]
 freeze_configs:
-  - freeze_none
-  - freeze_patch
-  - freeze_patch_blocks0-3
-  - freeze_patch_blocks0-5
+
+  
   - freeze_patch_blocks0-8
-  - freeze_patch_blocks0-11
+  # freeze_patch_blocks0-11
 
 # Output
 output_dir: results

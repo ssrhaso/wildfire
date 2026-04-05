@@ -1,0 +1,2 @@
+config_1,config_2,mean_1,mean_2,t_statistic,p_value,cohens_d,significant
+Freeze patch+0-8,Freeze patch+0-11,0.9932088,0.9832766000000002,12.23049355131353,1.9071723165535675e-05,7.7352433060304415,True
