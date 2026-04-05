@@ -16,3 +16,4 @@ data/
 checkpoints/
 
 .claude/
+wandb/
