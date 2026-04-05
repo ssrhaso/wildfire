@@ -18,7 +18,7 @@ for config in $CONFIGS; do
             --model hybrid \
             --freeze-config "$config" \
             --seed "$seed" \
-            --epochsd 20 \
+            --epochs 20 \
             --batch-size 64 \
             --no-amp \
             --num-workers 4 \

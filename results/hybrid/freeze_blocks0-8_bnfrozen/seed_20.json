@@ -1,0 +1,178 @@
+{
+  "model": "hybrid",
+  "freeze_config": "freeze_blocks0-8_bnfrozen",
+  "seed": 20,
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 4090",
+  "optimizer": "adamw",
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "dropout": 0.1,
+  "batch_size": 64,
+  "grad_accum_steps": 1,
+  "effective_batch_size": 64,
+  "amp": false,
+  "epochs_configured": 20,
+  "patience": 5,
+  "num_trainable_params": 30718658,
+  "num_frozen_params": 63821440,
+  "num_total_params": 94540098,
+  "trainable_pct": 32.49,
+  "dataset": {
+    "train": {
+      "total": 18847,
+      "fire": 9763,
+      "nofire": 9084
+    },
+    "val": {
+      "total": 2356,
+      "fire": 1220,
+      "nofire": 1136
+    },
+    "test": {
+      "total": 2356,
+      "fire": 1221,
+      "nofire": 1135
+    }
+  },
+  "class_weights": [
+    1.0374,
+    0.9652
+  ],
+  "epochs_completed": 9,
+  "early_stopped": true,
+  "test_acc": 0.518251,
+  "test_loss": 0.692508,
+  "test_precision_fire": 0.5183,
+  "test_recall_fire": 1.0,
+  "test_f1_fire": 0.6827,
+  "test_precision_nofire": 0.0,
+  "test_recall_nofire": 0.0,
+  "test_f1_nofire": 0.0,
+  "test_confusion_matrix": [
+    [
+      0,
+      1135
+    ],
+    [
+      0,
+      1221
+    ]
+  ],
+  "best_val_acc": 0.517827,
+  "best_val_loss": 0.692532,
+  "best_val_f1_fire": 0.682327,
+  "best_val_f1_macro": 0.341163,
+  "best_epoch": 4,
+  "total_train_time_seconds": 809.49,
+  "train_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.736748,
+      "train_acc": 0.499628,
+      "val_loss": 0.696292,
+      "val_acc": 0.482173,
+      "val_f1_fire": 0.0,
+      "val_f1_nofire": 0.65063,
+      "val_f1_macro": 0.325315,
+      "lr": 0.0009938441702975688,
+      "epoch_time_seconds": 90.68
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.693799,
+      "train_acc": 0.500585,
+      "val_loss": 0.695659,
+      "val_acc": 0.482173,
+      "val_f1_fire": 0.0,
+      "val_f1_nofire": 0.65063,
+      "val_f1_macro": 0.325315,
+      "lr": 0.0009755282581475768,
+      "epoch_time_seconds": 89.42
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.693322,
+      "train_acc": 0.504199,
+      "val_loss": 0.694698,
+      "val_acc": 0.482173,
+      "val_f1_fire": 0.0,
+      "val_f1_nofire": 0.65063,
+      "val_f1_macro": 0.325315,
+      "lr": 0.0009455032620941839,
+      "epoch_time_seconds": 89.48
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.693685,
+      "train_acc": 0.498884,
+      "val_loss": 0.692532,
+      "val_acc": 0.517827,
+      "val_f1_fire": 0.682327,
+      "val_f1_nofire": 0.0,
+      "val_f1_macro": 0.341163,
+      "lr": 0.0009045084971874737,
+      "epoch_time_seconds": 89.75
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.69335,
+      "train_acc": 0.513605,
+      "val_loss": 0.693526,
+      "val_acc": 0.482173,
+      "val_f1_fire": 0.0,
+      "val_f1_nofire": 0.65063,
+      "val_f1_macro": 0.325315,
+      "lr": 0.0008535533905932737,
+      "epoch_time_seconds": 89.64
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.69404,
+      "train_acc": 0.496971,
+      "val_loss": 0.692546,
+      "val_acc": 0.517827,
+      "val_f1_fire": 0.682327,
+      "val_f1_nofire": 0.0,
+      "val_f1_macro": 0.341163,
+      "lr": 0.0007938926261462366,
+      "epoch_time_seconds": 89.76
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.693316,
+      "train_acc": 0.510257,
+      "val_loss": 0.693088,
+      "val_acc": 0.517827,
+      "val_f1_fire": 0.682327,
+      "val_f1_nofire": 0.0,
+      "val_f1_macro": 0.341163,
+      "lr": 0.0007269952498697733,
+      "epoch_time_seconds": 89.57
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.693338,
+      "train_acc": 0.503455,
+      "val_loss": 0.693292,
+      "val_acc": 0.482173,
+      "val_f1_fire": 0.0,
+      "val_f1_nofire": 0.65063,
+      "val_f1_macro": 0.325315,
+      "lr": 0.0006545084971874737,
+      "epoch_time_seconds": 89.62
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.693294,
+      "train_acc": 0.489743,
+      "val_loss": 0.692749,
+      "val_acc": 0.517827,
+      "val_f1_fire": 0.682327,
+      "val_f1_nofire": 0.0,
+      "val_f1_macro": 0.341163,
+      "lr": 0.0005782172325201155,
+      "epoch_time_seconds": 89.6
+    }
+  ]
+}

@@ -83,7 +83,7 @@ def train_one_epoch(
     running_loss = 0.0
     correct = 0
     total = 0
-    use_amp = scaler is not None
+    use_amp = scaler is not None 
 
     optimizer.zero_grad()
 
@@ -94,6 +94,12 @@ def train_one_epoch(
             logits = model(images)
             loss = criterion(logits, labels) / grad_accum_steps
 
+        if torch.isnan(loss):
+            print(f"    NaN loss detected at batch {batch_idx}, skipping")
+            optimizer.zero_grad()
+            torch.cuda.empty_cache()
+            continue
+
         if use_amp:
             scaler.scale(loss).backward()
         else:
@@ -101,9 +107,12 @@ def train_one_epoch(
 
         if (batch_idx + 1) % grad_accum_steps == 0 or (batch_idx + 1) == len(loader):
             if use_amp:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
                 scaler.step(optimizer)
                 scaler.update()
             else:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
                 optimizer.step()
             optimizer.zero_grad()
 
@@ -216,7 +225,7 @@ def run(args: argparse.Namespace) -> None:
         gpu_name = "cpu"
 
     use_amp = args.amp and torch.cuda.is_available()
-    scaler = torch.amp.GradScaler("cuda") if use_amp else None
+    scaler = torch.amp.GradScaler("cuda") if torch.cuda.is_available() and not args.no_amp else None
 
     print(f"  Model: {args.model}")
     print(f"  Freeze config: {args.freeze_config}")
@@ -457,9 +466,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--amp", action="store_true",
                     help="Enable mixed precision training (FP16) for faster GPU training")
     default_workers = 0 if platform.system() == "Windows" else 4
-    p.add_argument("--num-workers", type=int, default=None)
-
-    p.add_argument("--output-dir", type=str, default=None)
+    p.add_argument("--num-workers", type=int, default=default_workers)
+    p.add_argument("--no-amp", action="store_true", help="Disable automatic mixed precision")
+    p.add_argument("--output-dir", type=str, default="results")
 
     p.add_argument("--wandb-project", type=str, default=None)
     p.add_argument("--wandb-entity", type=str, default=None)
