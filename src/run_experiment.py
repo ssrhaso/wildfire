@@ -439,31 +439,71 @@ def run(args: argparse.Namespace) -> None:
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Freezing ablation experiment runner")
 
-    p.add_argument("--model", type=str, default="vit", choices=["vit", "resnet", "hybrid"])
-    p.add_argument("--freeze-config", type=str, required=True)
-    p.add_argument("--seed", type=int, required=True)
+    p.add_argument("--config", type=str, default=None,
+                    help="Path to YAML config file. CLI args override config values.")
+    p.add_argument("--model", type=str, default=None, choices=["vit", "resnet", "hybrid"])
+    p.add_argument("--freeze-config", type=str, default=None)
+    p.add_argument("--seed", type=int, default=None)
 
-    p.add_argument("--epochs", type=int, default=20)
-    p.add_argument("--batch-size", type=int, default=16)
-    p.add_argument("--optimizer", type=str, default="adamw", choices=["adamw", "sgd"])
-    p.add_argument("--lr", type=float, default=1e-3)
-    p.add_argument("--weight-decay", type=float, default=1e-2)
-    p.add_argument("--dropout", type=float, default=0.1)
-    p.add_argument("--patience", type=int, default=5)
-    p.add_argument("--grad-accum-steps", type=int, default=1,
+    p.add_argument("--epochs", type=int, default=None)
+    p.add_argument("--batch-size", type=int, default=None)
+    p.add_argument("--optimizer", type=str, default=None, choices=["adamw", "sgd"])
+    p.add_argument("--lr", type=float, default=None)
+    p.add_argument("--weight-decay", type=float, default=None)
+    p.add_argument("--dropout", type=float, default=None)
+    p.add_argument("--patience", type=int, default=None)
+    p.add_argument("--grad-accum-steps", type=int, default=None,
                     help="Gradient accumulation steps (effective batch = batch_size * grad_accum_steps)")
     p.add_argument("--amp", action="store_true",
                     help="Enable mixed precision training (FP16) for faster GPU training")
     default_workers = 0 if platform.system() == "Windows" else 4
-    p.add_argument("--num-workers", type=int, default=default_workers)
+    p.add_argument("--num-workers", type=int, default=None)
 
-    p.add_argument("--output-dir", type=str, default="results")
+    p.add_argument("--output-dir", type=str, default=None)
 
-    p.add_argument("--wandb-project", type=str, default="wildfire-freezing")
+    p.add_argument("--wandb-project", type=str, default=None)
     p.add_argument("--wandb-entity", type=str, default=None)
     p.add_argument("--no-wandb", action="store_true")
 
-    return p.parse_args()
+    args = p.parse_args()
+
+    # Hardcoded defaults
+    defaults = {
+        "model": "vit",
+        "epochs": 20,
+        "batch_size": 16,
+        "optimizer": "adamw",
+        "lr": 1e-3,
+        "weight_decay": 1e-2,
+        "dropout": 0.1,
+        "patience": 5,
+        "grad_accum_steps": 1,
+        "num_workers": default_workers,
+        "output_dir": "results",
+        "wandb_project": "wildfire-freezing",
+    }
+
+    # Load config file if provided
+    if args.config:
+        import yaml
+        with open(args.config) as f:
+            cfg = yaml.safe_load(f)
+        for key, val in cfg.items():
+            if key in ("seeds", "freeze_configs"):
+                continue
+            defaults[key] = val
+
+    # Apply defaults, then override with explicit CLI args
+    for key, val in defaults.items():
+        if getattr(args, key, None) is None:
+            setattr(args, key, val)
+
+    if args.freeze_config is None:
+        p.error("--freeze-config is required")
+    if args.seed is None:
+        p.error("--seed is required")
+
+    return args
 
 
 if __name__ == "__main__":
