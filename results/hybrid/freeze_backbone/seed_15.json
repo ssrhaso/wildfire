@@ -64,7 +64,7 @@
   "best_val_f1_fire": 0.992611,
   "best_val_f1_macro": 0.992351,
   "best_epoch": 20,
-  "total_train_time_seconds": 893.61,
+  "total_train_time_seconds": 877.29,
   "train_history": [
     {
       "epoch": 1,
@@ -76,7 +76,7 @@
       "val_f1_nofire": 0.972542,
       "val_f1_macro": 0.973639,
       "lr": 0.0009938441702975688,
-      "epoch_time_seconds": 51.59
+      "epoch_time_seconds": 43.02
     },
     {
       "epoch": 2,
@@ -88,7 +88,7 @@
       "val_f1_nofire": 0.978537,
       "val_f1_macro": 0.979182,
       "lr": 0.0009755282581475768,
-      "epoch_time_seconds": 41.14
+      "epoch_time_seconds": 41.33
     },
     {
       "epoch": 3,
@@ -100,7 +100,7 @@
       "val_f1_nofire": 0.982472,
       "val_f1_macro": 0.983005,
       "lr": 0.0009455032620941839,
-      "epoch_time_seconds": 41.27
+      "epoch_time_seconds": 41.33
     },
     {
       "epoch": 4,
@@ -112,7 +112,7 @@
       "val_f1_nofire": 0.981264,
       "val_f1_macro": 0.981736,
       "lr": 0.0009045084971874737,
-      "epoch_time_seconds": 41.16
+      "epoch_time_seconds": 41.71
     },
     {
       "epoch": 5,
@@ -124,7 +124,7 @@
       "val_f1_nofire": 0.983319,
       "val_f1_macro": 0.983853,
       "lr": 0.0008535533905932737,
-      "epoch_time_seconds": 41.26
+      "epoch_time_seconds": 41.25
     },
     {
       "epoch": 6,
@@ -136,7 +136,7 @@
       "val_f1_nofire": 0.980427,
       "val_f1_macro": 0.981285,
       "lr": 0.0007938926261462366,
-      "epoch_time_seconds": 54.22
+      "epoch_time_seconds": 41.22
     },
     {
       "epoch": 7,
@@ -148,7 +148,7 @@
       "val_f1_nofire": 0.986289,
       "val_f1_macro": 0.986821,
       "lr": 0.0007269952498697733,
-      "epoch_time_seconds": 41.17
+      "epoch_time_seconds": 41.93
     },
     {
       "epoch": 8,
@@ -172,7 +172,7 @@
       "val_f1_nofire": 0.979662,
       "val_f1_macro": 0.980044,
       "lr": 0.0005782172325201155,
-      "epoch_time_seconds": 41.77
+      "epoch_time_seconds": 41.21
     },
     {
       "epoch": 10,
@@ -184,7 +184,7 @@
       "val_f1_nofire": 0.979292,
       "val_f1_macro": 0.979621,
       "lr": 0.0005,
-      "epoch_time_seconds": 41.08
+      "epoch_time_seconds": 45.74
     },
     {
       "epoch": 11,
@@ -196,7 +196,7 @@
       "val_f1_nofire": 0.989409,
       "val_f1_macro": 0.989798,
       "lr": 0.0004217827674798847,
-      "epoch_time_seconds": 41.51
+      "epoch_time_seconds": 41.25
     },
     {
       "epoch": 12,
@@ -208,7 +208,7 @@
       "val_f1_nofire": 0.989934,
       "val_f1_macro": 0.990229,
       "lr": 0.00034549150281252633,
-      "epoch_time_seconds": 41.62
+      "epoch_time_seconds": 48.63
     },
     {
       "epoch": 13,
@@ -220,7 +220,7 @@
       "val_f1_nofire": 0.990325,
       "val_f1_macro": 0.990651,
       "lr": 0.00027300475013022663,
-      "epoch_time_seconds": 42.24
+      "epoch_time_seconds": 55.04
     },
     {
       "epoch": 14,
@@ -232,7 +232,7 @@
       "val_f1_nofire": 0.992091,
       "val_f1_macro": 0.992351,
       "lr": 0.00020610737385376348,
-      "epoch_time_seconds": 41.39
+      "epoch_time_seconds": 41.9
     },
     {
       "epoch": 15,
@@ -244,7 +244,7 @@
       "val_f1_nofire": 0.989854,
       "val_f1_macro": 0.990224,
       "lr": 0.00014644660940672625,
-      "epoch_time_seconds": 53.34
+      "epoch_time_seconds": 41.33
     },
     {
       "epoch": 16,
@@ -256,7 +256,7 @@
       "val_f1_nofire": 0.990761,
       "val_f1_macro": 0.991076,
       "lr": 9.549150281252631e-05,
-      "epoch_time_seconds": 41.26
+      "epoch_time_seconds": 41.16
     },
     {
       "epoch": 17,
@@ -268,7 +268,7 @@
       "val_f1_nofire": 0.990802,
       "val_f1_macro": 0.991078,
       "lr": 5.4496737905816096e-05,
-      "epoch_time_seconds": 41.43
+      "epoch_time_seconds": 41.52
     },
     {
       "epoch": 18,
@@ -280,7 +280,7 @@
       "val_f1_nofire": 0.991641,
       "val_f1_macro": 0.991925,
       "lr": 2.447174185242323e-05,
-      "epoch_time_seconds": 52.7
+      "epoch_time_seconds": 53.53
     },
     {
       "epoch": 19,
@@ -292,7 +292,7 @@
       "val_f1_nofire": 0.993418,
       "val_f1_macro": 0.993626,
       "lr": 6.15582970243117e-06,
-      "epoch_time_seconds": 50.38
+      "epoch_time_seconds": 41.37
     },
     {
       "epoch": 20,
@@ -304,7 +304,7 @@
       "val_f1_nofire": 0.992091,
       "val_f1_macro": 0.992351,
       "lr": 0.0,
-      "epoch_time_seconds": 41.43
+      "epoch_time_seconds": 41.05
     }
   ]
 }
