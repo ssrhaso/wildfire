@@ -1,8 +1,7 @@
 """Grad-CAM visualisation for wildfire classification models.
 
 Generates activation heatmaps showing which image regions drive the model's
-predictions. Supports ViT-B/16, ResNet-50, and Hybrid CNN-ViT with any
-freeze configuration.
+predictions. Supports ViT-B/16, ResNet-50, and Hybrid CNN-ViT with any freeze configuration.
 
 Usage:
     # Single config
