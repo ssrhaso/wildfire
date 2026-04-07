@@ -14,13 +14,11 @@ num_workers: 4
 # Experiment
 seeds: [0, 5, 10, 15, 20]
 freeze_configs:
-
-  
-  - freeze_patch_blocks0-8
-  # freeze_patch_blocks0-11
+  - freeze_patch_blocks0-5
 
 # Output
 output_dir: results
 
 # Weights & Biases
 wandb_project: wildfire-freezing
+  
