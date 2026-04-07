@@ -212,16 +212,16 @@ wildfire/
 
 ## Current Status
 
-- ViT-B/16 `freeze_patch_blocks0-11`: complete (5/5 seeds)
-- ViT-B/16 `freeze_none`: complete (1 seed, dry run only)
-- ViT-B/16 remaining configs: in progress
-- ResNet-50: not yet started
-- Hybrid CNN-ViT: not yet started
+- **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best config: `freeze_backbone` at 98.82% accuracy.
+- **ViT-B/16:** partially complete (4/6 configs with 5 seeds; `freeze_patch_blocks0-8` leads at 99.32%)
+- **ResNet-50:** infrastructure ready, runs pending
+- **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, and Grad-CAM visualisations all operational
+- **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (51-68% accuracy)
 
 ## Future Work
 
-- Complete all freezing ablation runs across the three architectures (85 total)
-- Conduct pairwise statistical comparisons (Welch's t-test, Cohen's d) across configurations
-- Generate Grad-CAM visualisations to interpret what each model attends to at different freezing levels
-- Investigate whether BatchNorm freezing behaviour in the Hybrid model affects convergence
+- Complete remaining ViT-B/16 and all ResNet-50 ablation runs
+- Add ROC curves and AUC scores to the evaluation pipeline
+- Generate cross-model comparison figures (accuracy vs trainable parameter %)
+- Produce t-SNE/UMAP feature space visualisations at different freezing levels
 - Explore progressive unfreezing schedules as an alternative to static freezing
