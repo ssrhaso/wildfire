@@ -1,3 +1,6 @@
+# Copyright (c) Hasaan Ahmad 2026. All rights reserved.
+# Licensed under the MIT License.
+
 model: vit
 
 # Training
