@@ -1,3 +1,6 @@
+# Copyright (c) Hasaan Ahmad 2026. All rights reserved.
+# Licensed under the MIT License.
+
 $ConfigFile = "configs/vit.yaml"
 
 # Read seeds and freeze configs from YAML
