@@ -17,7 +17,12 @@ num_workers: 4
 # Experiment
 seeds: [0, 5, 10, 15, 20]
 freeze_configs:
+  - freeze_none
+  - freeze_patch
+  - freeze_patch_blocks0-3
   - freeze_patch_blocks0-5
+  - freeze_patch_blocks0-8
+  - freeze_patch_blocks0-11
 
 # Output
 output_dir: results
