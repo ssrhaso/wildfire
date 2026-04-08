@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) Hasaan Ahmad 2026. All rights reserved.
+# Licensed under the MIT License.
 set -e
 
 CONFIG_FILE="configs/vit.yaml"
