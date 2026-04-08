@@ -1,3 +1,6 @@
+# Copyright (c) Hasaan Ahmad 2026. All rights reserved.
+# Licensed under the MIT License.
+
 import torch
 import torch.nn as nn
 import torchvision.models as models
