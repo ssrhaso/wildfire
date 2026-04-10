@@ -38,3 +38,4 @@ wandb/
 
 # Jupyter
 .ipynb_checkpoints/
+freeze_backbone_seed_0_best.pt
