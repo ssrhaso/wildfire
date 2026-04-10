@@ -1,5 +1,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
 
 # Environments
 .env
@@ -14,6 +19,22 @@ venv.bak/
 # Data and outputs
 data/
 checkpoints/
+results/checkpoints/
 
-.claude/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Experiment tracking
 wandb/
+.claude/
+
+# Jupyter
+.ipynb_checkpoints/
