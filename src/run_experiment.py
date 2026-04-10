@@ -43,7 +43,7 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.benchmark = True
 
 
 def build_model(args: argparse.Namespace) -> nn.Module:
@@ -465,7 +465,7 @@ def parse_args() -> argparse.Namespace:
                     help="Gradient accumulation steps (effective batch = batch_size * grad_accum_steps)")
     p.add_argument("--amp", action="store_true",
                     help="Enable mixed precision training (FP16) for faster GPU training")
-    default_workers = 0 if platform.system() == "Windows" else 4
+    default_workers = 4
     p.add_argument("--num-workers", type=int, default=default_workers)
     p.add_argument("--no-amp", action="store_true", help="Disable automatic mixed precision")
     p.add_argument("--output-dir", type=str, default="results")
