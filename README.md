@@ -85,7 +85,7 @@ All models share the following configuration:
 - **Epochs:** 20 (early stopping with patience=5, min delta=1e-4)
 - **Gradient accumulation:** 2 steps for ViT/ResNet, 4 steps for Hybrid (effective batch size=32)
 - **Seeds:** 0, 5, 10, 15, 20
-- **Deterministic mode:** Enabled (cudnn.deterministic=True, benchmark=False)
+- **Deterministic mode:** Enabled (cudnn.deterministic=True, cudnn.benchmark=True)
 - **Experiment tracking:** Weights & Biases (project: `wildfire-freezing`)
 
 ## Getting Started
@@ -93,68 +93,48 @@ All models share the following configuration:
 ### Prerequisites
 
 - Python 3.10+
-- Kaggle account and API key
-- NVIDIA GPU recommended (tested on RTX 4070)
+- Kaggle account and API key (see [Kaggle API docs](https://www.kaggle.com/docs/api))
+- NVIDIA GPU recommended (tested on RTX 4070, RTX 5070)
 - ~15 GB free disk space
 
-### Setup
+### One-Command Setup
+
+This creates a virtual environment, installs all dependencies, downloads the datasets, extracts them, and runs preprocessing:
 
 ```bash
-python -m venv venv
+# Linux/Mac
+make setup-linux
 
+# Windows (via Git Bash or similar)
+make setup-windows
+```
+
+Then activate the environment:
+
+```bash
 # Linux/Mac
 source venv/bin/activate
 
 # Windows
 venv\Scripts\activate
-
-pip install -r requirements.txt
-```
-
-### Data Download and Preprocessing
-
-```bash
-kaggle datasets download warcoder/flamevision-dataset-for-wildfire-classification
-kaggle datasets download dani215/fire-dataset
-kaggle datasets download amerzishminha/forest-fire-smoke-and-non-fire-image-dataset
-```
-
-Move all zip files into `data/raw/`, then unzip:
-
-```bash
-# Linux/Mac
-make linux
-
-# Windows
-make windows
-```
-
-Run preprocessing (deduplication, verification, split generation):
-
-```bash
-python src/preprocess.py
 ```
 
 ### Running Experiments
 
-Each model can be run independently. All scripts are in `scripts/`.
+Each model can be run independently. The scripts automatically skip completed runs, so they are safe to re-run.
 
 ```bash
-# ViT-B/16 (6 configs x 5 seeds = 30 runs)
-bash scripts/run_vit.sh          # Linux/Mac
-.\scripts\run_vit.ps1            # Windows
+# Linux/Mac
+make experiments-vit              # ViT-B/16 (6 configs x 5 seeds = 30 runs)
+make experiments-resnet           # ResNet-50 (6 configs x 5 seeds = 30 runs)
+make experiments-hybrid           # Hybrid CNN-ViT (5 configs x 5 seeds = 25 runs)
+make experiments-all              # All models sequentially
 
-# ResNet-50 (6 configs x 5 seeds = 30 runs)
-bash scripts/run_resnet.sh
-.\scripts\run_resnet.ps1
-
-# Hybrid CNN-ViT (5 configs x 5 seeds = 25 runs)
-bash scripts/run_hybrid.sh
-.\scripts\run_hybrid.ps1
-
-# All models sequentially
-bash scripts/run_all.sh
-.\scripts\run_all.ps1
+# Windows
+make experiments-vit-win
+make experiments-resnet-win
+make experiments-hybrid-win
+make experiments-all-win
 ```
 
 To verify the setup with a single-epoch dry run:
@@ -213,7 +193,7 @@ wildfire/
 ## Current Status
 
 - **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best config: `freeze_backbone` at 98.82% accuracy.
-- **ViT-B/16:** partially complete (4/6 configs with 5 seeds; `freeze_patch_blocks0-8` leads at 99.32%)
+- **ViT-B/16:** partially complete (4/6 configs done; `freeze_patch_blocks0-8` leads at 99.32%). Remaining runs: `freeze_none` (4 seeds), `freeze_patch` (5 seeds), `freeze_patch_blocks0-3` (5 seeds), `freeze_patch_blocks0-5` (2 seeds)
 - **ResNet-50:** infrastructure ready, runs pending
 - **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, and Grad-CAM visualisations all operational
 - **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (51-68% accuracy)
