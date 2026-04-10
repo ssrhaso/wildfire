@@ -44,6 +44,7 @@ install-windows: venv
 # Data download & extraction
 
 download:
+	mkdir -p data
 	mkdir -p data/raw
 	mkdir -p data/processed
 	kaggle datasets download warcoder/flamevision-dataset-for-wildfire-classification
