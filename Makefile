@@ -1,9 +1,57 @@
 # Wildfire Classification Makefile
+#
+# Quick start:
+#   make setup-linux    (or setup-windows)
+#   make preprocess
+#   make experiments-vit
 
+PYTHON ?= python
+PIP ?= pip
+VENV_DIR ?= venv
+
+# ============================================================================
+# Full Setup (clone -> run in one go)
+# ============================================================================
+
+setup-linux: venv install download unzip-linux preprocess
+	@echo ""
+	@echo "  Setup complete. Activate the venv and run experiments:"
+	@echo "    source $(VENV_DIR)/bin/activate"
+	@echo "    make experiments-vit"
+	@echo ""
+
+setup-windows: venv install download unzip-windows preprocess
+	@echo ""
+	@echo "  Setup complete. Activate the venv and run experiments:"
+	@echo "    $(VENV_DIR)\Scripts\activate"
+	@echo "    make experiments-vit"
+	@echo ""
+
+# ============================================================================
+# Environment
+# ============================================================================
+
+venv:
+	@if [ ! -d "$(VENV_DIR)" ]; then \
+		echo "  Creating virtual environment..."; \
+		$(PYTHON) -m venv $(VENV_DIR); \
+	else \
+		echo "  Virtual environment already exists, skipping."; \
+	fi
+
+install: venv
+	@echo "  Installing dependencies..."
+	$(VENV_DIR)/bin/pip install --upgrade pip
+	$(VENV_DIR)/bin/pip install -r requirements.txt
+
+install-windows: venv
+	@echo "  Installing dependencies..."
+	$(VENV_DIR)/Scripts/pip install --upgrade pip
+	$(VENV_DIR)/Scripts/pip install -r requirements.txt
+
+# ============================================================================
 # Data Download & Extraction
-
-windows: download unzip-windows
-linux: download unzip-linux
+# ============================================================================
 
 download:
 	mkdir -p data/raw
@@ -37,12 +85,16 @@ unzip-windows:
 	powershell -Command "New-Item -ItemType Directory -Force -Path 'data/raw/minha'; tar -xf 'data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip' -C 'data/raw/minha'"
 	powershell -Command "Remove-Item -Force -Path 'data/raw/forest-fire-smoke-and-non-fire-image-dataset.zip'"
 
+# ============================================================================
 # Preprocessing
+# ============================================================================
 
 preprocess:
-	python src/preprocess.py
+	$(PYTHON) src/preprocess.py
 
+# ============================================================================
 # Experiments (freezing ablation)
+# ============================================================================
 
 experiments-vit:
 	bash scripts/run_vit.sh
@@ -56,31 +108,63 @@ experiments-hybrid:
 experiments-all:
 	bash scripts/run_all.sh
 
+experiments-vit-win:
+	powershell -ExecutionPolicy Bypass -File scripts/run_vit.ps1
+
+experiments-resnet-win:
+	powershell -ExecutionPolicy Bypass -File scripts/run_resnet.ps1
+
+experiments-hybrid-win:
+	powershell -ExecutionPolicy Bypass -File scripts/run_hybrid.ps1
+
+experiments-all-win:
+	powershell -ExecutionPolicy Bypass -File scripts/run_all.ps1
+
+# ============================================================================
 # Analysis only (after experiments are done)
+# ============================================================================
 
 analyse-vit:
-	python src/analyse_results.py --model vit
+	$(PYTHON) src/analyse_results.py --model vit
 
 analyse-resnet:
-	python src/analyse_results.py --model resnet
+	$(PYTHON) src/analyse_results.py --model resnet
 
 analyse-hybrid:
-	python src/analyse_results.py --model hybrid
+	$(PYTHON) src/analyse_results.py --model hybrid
 
 analyse-all: analyse-vit analyse-resnet analyse-hybrid
 
+# ============================================================================
 # Quick single-run test (verifies setup works)
+# ============================================================================
 
 test-vit:
-	python src/run_experiment.py --model vit --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
+	$(PYTHON) src/run_experiment.py --model vit --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
 
 test-resnet:
-	python src/run_experiment.py --model resnet --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
+	$(PYTHON) src/run_experiment.py --model resnet --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
 
 test-hybrid:
-	python src/run_experiment.py --model hybrid --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
+	$(PYTHON) src/run_experiment.py --model hybrid --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
 
-.PHONY: windows linux download unzip-linux unzip-windows preprocess \
+# ============================================================================
+# Cleanup
+# ============================================================================
+
+clean:
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name .ipynb_checkpoints -exec rm -rf {} + 2>/dev/null || true
+
+clean-results:
+	@echo "  This will delete all experiment results. Press Ctrl+C to cancel."
+	@sleep 3
+	rm -rf results/vit results/resnet results/hybrid results/checkpoints results/analysis
+
+.PHONY: setup-linux setup-windows venv install install-windows \
+	download unzip-linux unzip-windows preprocess \
 	experiments-vit experiments-resnet experiments-hybrid experiments-all \
+	experiments-vit-win experiments-resnet-win experiments-hybrid-win experiments-all-win \
 	analyse-vit analyse-resnet analyse-hybrid analyse-all \
-	test-vit test-resnet test-hybrid
+	test-vit test-resnet test-hybrid \
+	clean clean-results
