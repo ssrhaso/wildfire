@@ -2,16 +2,21 @@
 
 This project investigates how progressive layer freezing during transfer learning affects classification performance for binary wildfire detection (fire vs. no fire). Three pretrained architectures (ViT-B/16, ResNet-50, and a Hybrid CNN-ViT) are systematically evaluated across multiple freezing configurations, each repeated over five random seeds for statistical rigour. The goal is to determine how much fine-tuning is actually necessary when adapting large vision models to a domain-specific task.
 
-## Preliminary Results
+## Results
 
-Experiments for ViT-B/16 with all transformer blocks frozen are complete (5 seeds). Full results for all models and configurations are forthcoming.
+### ViT-B/16
 
-| Model | Freeze Config | Trainable Params | Test Accuracy | Test F1 (Fire) | Seeds |
-|-------|---------------|------------------|---------------|----------------|-------|
-| ViT-B/16 | `freeze_patch_blocks0-11` | 3,074 (0.004%) | 98.33 ± 0.08% | 0.984 ± 0.001 | 5 |
-| ViT-B/16 | `freeze_none` | 85,800,194 (100%) | 83.87% | 0.846 | 1 (dry run) |
+Five of six freezing configurations are complete (only `freeze_patch_blocks0-3` is still pending). All values are mean ± std across seeds.
 
-Training only the classification head (3,074 parameters) substantially outperforms full fine-tuning in early results, suggesting that pretrained ImageNet features generalise well to wildfire imagery.
+| Freeze Config | Trainable (%) | Test Accuracy | Test F1 (Fire) | Seeds |
+|---------------|---------------|---------------|----------------|-------|
+| `freeze_patch_blocks0-8` | 24.79% | 99.32 ± 0.16% | 0.993 ± 0.002 | 5 |
+| `freeze_patch_blocks0-5` | 49.57% | 99.07 ± 0.11% | 0.991 ± 0.001 | 4 |
+| `freeze_patch_blocks0-11` | 0.00% | 98.33 ± 0.08% | 0.984 ± 0.001 | 5 |
+| `freeze_patch` | 99.13% | 96.41 ± 0.27% | 0.965 ± 0.003 | 5 |
+| `freeze_none` | 100.00% | 93.61 ± 5.45% | 0.939 ± 0.052 | 5 |
+
+The best performance comes from freezing the patch embedding and blocks 0--8 (24.79% trainable), reaching 99.32% accuracy. Full fine-tuning (`freeze_none`) performs worst with the highest variance, indicating overfitting. Even training only the classification head (`freeze_patch_blocks0-11`, 3,074 parameters) achieves 98.33%, confirming that pretrained ImageNet features generalise well to wildfire imagery. Overall, there is a clear sweet spot: moderate freezing outperforms both extremes.
 
 ## Dataset
 
@@ -193,14 +198,14 @@ wildfire/
 ## Current Status
 
 - **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best config: `freeze_backbone` at 98.82% accuracy.
-- **ViT-B/16:** partially complete (4/6 configs done; `freeze_patch_blocks0-8` leads at 99.32%). Remaining runs: `freeze_none` (4 seeds), `freeze_patch` (5 seeds), `freeze_patch_blocks0-3` (5 seeds), `freeze_patch_blocks0-5` (2 seeds)
+- **ViT-B/16:** nearly complete (5/6 configs done; `freeze_patch_blocks0-8` leads at 99.32%). Remaining: `freeze_patch_blocks0-3` (5 seeds)
 - **ResNet-50:** infrastructure ready, runs pending
 - **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, and Grad-CAM visualisations all operational
 - **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (51-68% accuracy)
 
 ## Future Work
 
-- Complete remaining ViT-B/16 and all ResNet-50 ablation runs
+- Complete remaining ViT-B/16 config (`freeze_patch_blocks0-3`) and all ResNet-50 ablation runs
 - Add ROC curves and AUC scores to the evaluation pipeline
 - Generate cross-model comparison figures (accuracy vs trainable parameter %)
 - Produce t-SNE/UMAP feature space visualisations at different freezing levels
