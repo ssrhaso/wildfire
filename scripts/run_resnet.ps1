@@ -1,15 +1,13 @@
 # Copyright (c) Hasaan Ahmad et Al. 2026. All rights reserved.
 # Licensed under the MIT License.
 
-$Seeds = @(0, 5, 10, 15, 20)
-$Configs = @(
-    "freeze_none",
-    "freeze_conv1",
-    "freeze_conv1_layer1",
-    "freeze_conv1_layer1-2",
-    "freeze_conv1_layer1-3",
-    "freeze_conv1_layer1-4"
-)
+$ConfigFile = "configs/resnet.yaml"
+
+# Read seeds and freeze configs from YAML
+$Seeds = python -c "import yaml; cfg=yaml.safe_load(open('$ConfigFile')); print(' '.join(str(s) for s in cfg['seeds']))"
+$Seeds = $Seeds -split ' '
+$Configs = python -c "import yaml; cfg=yaml.safe_load(open('$ConfigFile')); print(' '.join(cfg['freeze_configs']))"
+$Configs = $Configs -split ' '
 
 $TotalRuns = $Configs.Count * $Seeds.Count
 
@@ -45,14 +43,10 @@ foreach ($config in $Configs) {
         }
 
         python src/run_experiment.py `
-            --model resnet `
+            --config $ConfigFile `
             --freeze-config $config `
             --seed $seed `
-            --epochs 20 `
-            --batch-size 16 `
-            --grad-accum-steps 2 `
-            --num-workers 0 `
-            --wandb-project wildfire-freezing
+            --no-wandb
 
         if ($LASTEXITCODE -ne 0) {
             $Failed += "$config/seed_$seed"
