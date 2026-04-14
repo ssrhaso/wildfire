@@ -5,13 +5,13 @@ model: resnet
 
 # Training
 epochs: 20
-batch_size: 128
+batch_size: 16
 optimizer: adamw
 lr: 0.001
 weight_decay: 0.01
 dropout: 0.1
 patience: 5
-grad_accum_steps: 1
+grad_accum_steps: 2
 num_workers: 4
 
 # Experiment
