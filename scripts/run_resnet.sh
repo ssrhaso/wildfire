@@ -3,8 +3,11 @@
 # Licensed under the MIT License.
 set -e
 
-SEEDS="0 5 10 15 20"
-CONFIGS="freeze_none freeze_conv1 freeze_conv1_layer1 freeze_conv1_layer1-2 freeze_conv1_layer1-3 freeze_conv1_layer1-4"
+CONFIG_FILE="configs/resnet.yaml"
+
+# Read seeds and freeze configs from YAML
+SEEDS=$(python -c "import yaml; cfg=yaml.safe_load(open('$CONFIG_FILE')); print(' '.join(str(s) for s in cfg['seeds']))")
+CONFIGS=$(python -c "import yaml; cfg=yaml.safe_load(open('$CONFIG_FILE')); print(' '.join(cfg['freeze_configs']))")
 
 SEED_ARR=($SEEDS)
 CONFIG_ARR=($CONFIGS)
@@ -44,14 +47,9 @@ for config in $CONFIGS; do
         fi
 
         if ! python src/run_experiment.py \
-            --model resnet \
+            --config "$CONFIG_FILE" \
             --freeze-config "$config" \
-            --seed "$seed" \
-            --epochs 20 \
-            --batch-size 16 \
-            --grad-accum-steps 2 \
-            --num-workers 4 \
-            --wandb-project wildfire-freezing; then
+            --seed "$seed"; then
             FAILED=$((FAILED + 1))
             FAILED_LIST="$FAILED_LIST  $config/seed_$seed\n"
             echo "  FAILED: $config | seed $seed"
