@@ -45,8 +45,7 @@ foreach ($config in $Configs) {
         python src/run_experiment.py `
             --config $ConfigFile `
             --freeze-config $config `
-            --seed $seed `
-            --no-wandb
+            --seed $seed
 
         if ($LASTEXITCODE -ne 0) {
             $Failed += "$config/seed_$seed"
