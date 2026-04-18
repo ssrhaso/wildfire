@@ -199,7 +199,7 @@ wildfire/
 
 - **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best config: `freeze_backbone` at 98.82% accuracy.
 - **ViT-B/16:** nearly complete (5/6 configs done; `freeze_patch_blocks0-8` leads at 99.32%). Remaining: `freeze_patch_blocks0-3` (5 seeds)
-- **ResNet-50:** infrastructure ready, runs pending
+- **ResNet-50:** (2/6 done;`freeze_conv1_layer1` (4 seeds done))
 - **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, and Grad-CAM visualisations all operational
 - **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (51-68% accuracy)
 
