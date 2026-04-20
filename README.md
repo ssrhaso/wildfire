@@ -4,9 +4,9 @@ This project investigates how progressive layer freezing during transfer learnin
 
 ## Results
 
-### ViT-B/16
+All values are mean ± std across seeds; configs sorted by test accuracy.
 
-Five of six freezing configurations are complete (only `freeze_patch_blocks0-3` is still pending). All values are mean ± std across seeds.
+### ViT-B/16 (5/6 configs complete, `freeze_patch_blocks0-3` pending)
 
 | Freeze Config               | Trainable (%) | Test Accuracy  | Test F1 (Fire) | Seeds |
 | --------------------------- | ------------- | -------------- | -------------- | ----- |
@@ -16,7 +16,58 @@ Five of six freezing configurations are complete (only `freeze_patch_blocks0-3` 
 | `freeze_patch`            | 99.13%        | 96.41 ± 0.27% | 0.965 ± 0.003 | 5     |
 | `freeze_none`             | 100.00%       | 93.61 ± 5.45% | 0.939 ± 0.052 | 5     |
 
-The best performance comes from freezing the patch embedding and blocks 0--8 (24.79% trainable), reaching 99.32% accuracy. Full fine-tuning (`freeze_none`) performs worst with the highest variance, indicating overfitting. Even training only the classification head (`freeze_patch_blocks0-11`, 3,074 parameters) achieves 98.33%, confirming that pretrained ImageNet features generalise well to wildfire imagery. Overall, there is a clear sweet spot: moderate freezing outperforms both extremes.
+Best: `freeze_patch_blocks0-8` (24.79% trainable) at 99.32%. Full fine-tuning performs worst with the highest variance, indicating overfitting. Head-only training (`freeze_patch_blocks0-11`, 3,074 parameters) still reaches 98.33%, showing ImageNet features transfer strongly. Moderate freezing beats both extremes.
+
+### ResNet-50 (6/6 configs complete)
+
+| Freeze Config             | Trainable (%) | Test Accuracy  | Test F1 (Fire) | Seeds |
+| ------------------------- | ------------- | -------------- | -------------- | ----- |
+| `freeze_conv1_layer1-3` | 63.66%        | 98.73 ± 0.27% | 0.988 ± 0.003 | 5     |
+| `freeze_conv1_layer1-2` | 93.85%        | 98.70 ± 0.12% | 0.987 ± 0.001 | 5     |
+| `freeze_conv1_layer1`   | 99.04%        | 98.57 ± 0.23% | 0.986 ± 0.002 | 5     |
+| `freeze_conv1`          | 99.96%        | 98.54 ± 0.18% | 0.986 ± 0.002 | 5     |
+| `freeze_conv1_layer1-4` | 0.02%         | 96.63 ± 0.38% | 0.967 ± 0.004 | 5     |
+| `freeze_none`           | 100.00%       | 96.50 ± 4.95% | 0.968 ± 0.044 | 5     |
+
+Best: `freeze_conv1_layer1-3` (63.66% trainable) at 98.73%. The top four configs cluster within 0.2 percentage points, so ResNet is largely insensitive to how much of the early stack is frozen. Full fine-tuning again shows the highest variance, and linear probing (`freeze_conv1_layer1-4`) drops only ~2 points despite training just 0.02% of parameters.
+
+### Hybrid CNN-ViT (21/21 configs complete)
+
+| Freeze Config                             | Trainable (%) | Test Accuracy   | Test F1 (Fire) | Seeds |
+| ----------------------------------------- | ------------- | --------------- | -------------- | ----- |
+| `freeze_backbone`                       | 90.96%        | 98.82 ± 0.23%  | 0.989 ± 0.002 | 5     |
+| `freeze_blocks0-11`                     | 10.03%        | 98.79 ± 0.13%  | 0.988 ± 0.001 | 5     |
+| `freeze_blocks0-8`                      | 32.53%        | 98.76 ± 0.19%  | 0.988 ± 0.002 | 5     |
+| `freeze_backbone_proj`                  | 90.13%        | 98.75 ± 0.17%  | 0.988 ± 0.002 | 5     |
+| `freeze_transformer_proj`               | 9.04%         | 98.52 ± 0.29%  | 0.986 ± 0.003 | 5     |
+| `freeze_transformer_only`               | 9.87%         | 98.28 ± 1.16%  | 0.983 ± 0.011 | 5     |
+| `freeze_blocks0-5`                      | 55.02%        | 98.24 ± 0.59%  | 0.983 ± 0.006 | 5     |
+| `freeze_blocks0-3`                      | 70.01%        | 98.23 ± 0.97%  | 0.983 ± 0.010 | 5     |
+| `freeze_none`                           | 100.00%       | 97.61 ± 1.23%  | 0.977 ± 0.012 | 5     |
+| `freeze_backbone_proj_blocks0-3`        | 59.98%        | 97.48 ± 0.34%  | 0.976 ± 0.003 | 5     |
+| `freeze_backbone_proj_blocks0-5`        | 44.99%        | 96.42 ± 0.55%  | 0.965 ± 0.006 | 5     |
+| `freeze_backbone_proj_blocks0-8`        | 22.49%        | 92.47 ± 0.73%  | 0.926 ± 0.007 | 5     |
+| `freeze_backbone_proj_blocks0-11`       | 0.00%         | 69.02 ± 2.37%  | 0.703 ± 0.021 | 5     |
+| `freeze_transformer_proj_bnfrozen`      | 9.01%         | 68.84 ± 16.78% | 0.769 ± 0.118 | 5     |
+| `freeze_backbone_proj_transformer`      | 0.00%         | 68.46 ± 2.54%  | 0.699 ± 0.022 | 5     |
+| `freeze_transformer_only_bnfrozen`      | 9.84%         | 61.03 ± 20.58% | 0.742 ± 0.133 | 5     |
+| `freeze_blocks0-11_bnfrozen`            | 10.00%        | 59.94 ± 12.81% | 0.718 ± 0.060 | 5     |
+| `freeze_blocks0-5_bnfrozen`             | 54.98%        | 56.52 ± 10.50% | 0.704 ± 0.048 | 5     |
+| `freeze_blocks0-3_bnfrozen`             | 69.98%        | 52.87 ± 2.33%  | 0.682 ± 0.002 | 5     |
+| `freeze_none_bnfrozen`                  | 99.97%        | 51.83 ± 0.00%  | 0.683 ± 0.000 | 5     |
+| `freeze_blocks0-8_bnfrozen`             | 32.49%        | 51.71 ± 0.25%  | 0.586 ± 0.217 | 5     |
+
+Best: `freeze_backbone` at 98.82%. The top four configs (all ≥98.75%) span a wide trainable-parameter range (10--91%), showing multiple paths to near-optimal performance. Freezing backbone+proj and progressively adding transformer blocks collapses sharply once blocks 0--8 are frozen (92.47% -> 69.02%). All seven BN-frozen variants degrade to 52--69%, confirming that freezing BatchNorm while the backbone is trainable breaks the network -- the batch statistics and learnable affine parameters must evolve together.
+
+### Cross-Model Summary
+
+| Model        | Best Config                  | Best Test Accuracy | Linear Probe Accuracy |
+| ------------ | ---------------------------- | ------------------ | --------------------- |
+| ViT-B/16     | `freeze_patch_blocks0-8`   | 99.32 ± 0.16%     | 98.33% (head only)    |
+| ResNet-50    | `freeze_conv1_layer1-3`    | 98.73 ± 0.27%     | 96.63% (head only)    |
+| Hybrid CNN-ViT | `freeze_backbone`        | 98.82 ± 0.23%     | 68.46% (head only)    |
+
+ViT-B/16 is the strongest architecture for this task. The Hybrid model matches ResNet but cannot be linear-probed effectively: its randomly-initialised conv projection and transformer stack need training to produce useful representations for the head.
 
 ## Dataset
 
@@ -197,11 +248,11 @@ wildfire/
 
 ## Current Status
 
-- **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best config: `freeze_backbone` at 98.82% accuracy.
-- **ViT-B/16:** nearly complete (5/6 configs done; `freeze_patch_blocks0-8` leads at 99.32%). Remaining: `freeze_patch_blocks0-3` (5 seeds)
-- **ResNet-50:** (2/6 done;`freeze_conv1_layer1` (4 seeds done))
-- **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, and Grad-CAM visualisations all operational
-- **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (51-68% accuracy)
+- **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best: `freeze_backbone` at 98.82%.
+- **ResNet-50:** complete (6 configs x 5 seeds = 30 runs). Best: `freeze_conv1_layer1-3` at 98.73%.
+- **ViT-B/16:** 5/6 configs complete. Best so far: `freeze_patch_blocks0-8` at 99.32%. Remaining: `freeze_patch_blocks0-3` (5 seeds) and 1 missing seed for `freeze_patch_blocks0-5`.
+- **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, cross-model comparison, and Grad-CAM visualisations all operational.
+- **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (52--69% accuracy).
 
 ## Future Work
 
