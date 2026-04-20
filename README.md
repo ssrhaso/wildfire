@@ -8,13 +8,13 @@ This project investigates how progressive layer freezing during transfer learnin
 
 Five of six freezing configurations are complete (only `freeze_patch_blocks0-3` is still pending). All values are mean ± std across seeds.
 
-| Freeze Config | Trainable (%) | Test Accuracy | Test F1 (Fire) | Seeds |
-|---------------|---------------|---------------|----------------|-------|
-| `freeze_patch_blocks0-8` | 24.79% | 99.32 ± 0.16% | 0.993 ± 0.002 | 5 |
-| `freeze_patch_blocks0-5` | 49.57% | 99.07 ± 0.11% | 0.991 ± 0.001 | 4 |
-| `freeze_patch_blocks0-11` | 0.00% | 98.33 ± 0.08% | 0.984 ± 0.001 | 5 |
-| `freeze_patch` | 99.13% | 96.41 ± 0.27% | 0.965 ± 0.003 | 5 |
-| `freeze_none` | 100.00% | 93.61 ± 5.45% | 0.939 ± 0.052 | 5 |
+| Freeze Config               | Trainable (%) | Test Accuracy  | Test F1 (Fire) | Seeds |
+| --------------------------- | ------------- | -------------- | -------------- | ----- |
+| `freeze_patch_blocks0-8`  | 24.79%        | 99.32 ± 0.16% | 0.993 ± 0.002 | 5     |
+| `freeze_patch_blocks0-5`  | 49.57%        | 99.07 ± 0.11% | 0.991 ± 0.001 | 4     |
+| `freeze_patch_blocks0-11` | 0.00%         | 98.33 ± 0.08% | 0.984 ± 0.001 | 5     |
+| `freeze_patch`            | 99.13%        | 96.41 ± 0.27% | 0.965 ± 0.003 | 5     |
+| `freeze_none`             | 100.00%       | 93.61 ± 5.45% | 0.939 ± 0.052 | 5     |
 
 The best performance comes from freezing the patch embedding and blocks 0--8 (24.79% trainable), reaching 99.32% accuracy. Full fine-tuning (`freeze_none`) performs worst with the highest variance, indicating overfitting. Even training only the classification head (`freeze_patch_blocks0-11`, 3,074 parameters) achieves 98.33%, confirming that pretrained ImageNet features generalise well to wildfire imagery. Overall, there is a clear sweet spot: moderate freezing outperforms both extremes.
 
@@ -28,11 +28,11 @@ The dataset is assembled from three public Kaggle sources:
 
 After deduplication via perceptual hashing and removal of corrupt files, the processed dataset contains **23,559 images** with a stratified 80/10/10 split:
 
-| Split | Fire | No Fire | Total |
-|-------|------|---------|-------|
-| Train | 9,763 | 9,084 | 18,847 |
-| Val | 1,220 | 1,136 | 2,356 |
-| Test | 1,221 | 1,135 | 2,356 |
+| Split | Fire  | No Fire | Total  |
+| ----- | ----- | ------- | ------ |
+| Train | 9,763 | 9,084   | 18,847 |
+| Val   | 1,220 | 1,136   | 2,356  |
+| Test  | 1,221 | 1,135   | 2,356  |
 
 Training augmentations include random resized crop, horizontal/vertical flips, rotation, colour jitter, grayscale, Gaussian blur, and random erasing. All images are normalised using ImageNet statistics.
 
@@ -50,35 +50,35 @@ All models are initialised with ImageNet-1K pretrained weights.
 
 ### ViT-B/16 (progressive transformer block freezing)
 
-| Config | What is Frozen | Trainable % |
-|--------|----------------|-------------|
-| `freeze_none` | Nothing | 100% |
-| `freeze_patch` | Patch embed + positional embed + CLS token | ~99% |
-| `freeze_patch_blocks0-3` | Above + blocks 0-3 | ~66% |
-| `freeze_patch_blocks0-5` | Above + blocks 0-5 | ~50% |
-| `freeze_patch_blocks0-8` | Above + blocks 0-8 | ~25% |
-| `freeze_patch_blocks0-11` | Above + all blocks | ~0.5% |
+| Config                      | What is Frozen                             | Trainable % |
+| --------------------------- | ------------------------------------------ | ----------- |
+| `freeze_none`             | Nothing                                    | 100%        |
+| `freeze_patch`            | Patch embed + positional embed + CLS token | ~99%        |
+| `freeze_patch_blocks0-3`  | Above + blocks 0-3                         | ~66%        |
+| `freeze_patch_blocks0-5`  | Above + blocks 0-5                         | ~50%        |
+| `freeze_patch_blocks0-8`  | Above + blocks 0-8                         | ~25%        |
+| `freeze_patch_blocks0-11` | Above + all blocks                         | ~0.5%       |
 
 ### ResNet-50 (progressive layer freezing)
 
-| Config | What is Frozen | Trainable % |
-|--------|----------------|-------------|
-| `freeze_none` | Nothing | 100% |
-| `freeze_conv1` | conv1 + bn1 | ~99.7% |
-| `freeze_conv1_layer1` | Above + layer1 (3 blocks) | ~93% |
-| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks) | ~78% |
-| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks) | ~45% |
-| `freeze_conv1_layer1-4` | Above + layer4 (3 blocks) | ~0.1% |
+| Config                    | What is Frozen            | Trainable % |
+| ------------------------- | ------------------------- | ----------- |
+| `freeze_none`           | Nothing                   | 100%        |
+| `freeze_conv1`          | conv1 + bn1               | ~99.7%      |
+| `freeze_conv1_layer1`   | Above + layer1 (3 blocks) | ~93%        |
+| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks) | ~78%        |
+| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks) | ~45%        |
+| `freeze_conv1_layer1-4` | Above + layer4 (3 blocks) | ~0.1%       |
 
 ### Hybrid CNN-ViT (component-level freezing)
 
-| Config | What is Frozen | Trainable % |
-|--------|----------------|-------------|
-| `freeze_none` | Nothing | 100% |
-| `freeze_backbone` | ResNet backbone | ~50% |
-| `freeze_backbone_proj` | Backbone + conv projection | ~50% |
-| `freeze_transformer_only` | Transformer + CLS token | ~50% |
-| `freeze_backbone_proj_transformer` | Everything except head | ~0.01% |
+| Config                               | What is Frozen             | Trainable % |
+| ------------------------------------ | -------------------------- | ----------- |
+| `freeze_none`                      | Nothing                    | 100%        |
+| `freeze_backbone`                  | ResNet backbone            | ~50%        |
+| `freeze_backbone_proj`             | Backbone + conv projection | ~50%        |
+| `freeze_transformer_only`          | Transformer + CLS token    | ~50%        |
+| `freeze_backbone_proj_transformer` | Everything except head     | ~0.01%      |
 
 ## Training Setup
 
@@ -99,7 +99,6 @@ All models share the following configuration:
 
 - Python 3.10+
 - Kaggle account and API key (see [Kaggle API docs](https://www.kaggle.com/docs/api))
-- NVIDIA GPU recommended (tested on RTX 4070, RTX 5070)
 - ~15 GB free disk space
 
 ### One-Command Setup
