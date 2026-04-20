@@ -100,6 +100,7 @@ All models share the following configuration:
 - Python 3.10+
 - Kaggle account and API key (see [Kaggle API docs](https://www.kaggle.com/docs/api))
 - ~15 GB free disk space
+- Nvidia GPU
 
 ### One-Command Setup
 
