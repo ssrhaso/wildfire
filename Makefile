@@ -1,4 +1,5 @@
 # Wildfire Classification Makefile
+# All commands are designed to be run from the project root directory.
 # Quick start: make setup-linux (or setup-windows), then make experiments-vit
 
 PYTHON ?= python
