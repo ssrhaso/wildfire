@@ -87,6 +87,22 @@ After deduplication via perceptual hashing and removal of corrupt files, the pro
 
 Training augmentations include random resized crop, horizontal/vertical flips, rotation, colour jitter, grayscale, Gaussian blur, and random erasing. All images are normalised using ImageNet statistics.
 
+### Preprocessing Pipeline
+
+End-to-end steps applied by [src/preprocess.py](src/preprocess.py) to go from raw Kaggle downloads to `data/processed/labels.csv`:
+
+| Step                 | Details                                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| Image collection     | Recursive walk across the three source roots; accepted extensions .jpg, .jpeg, .png, .tif, .tiff |
+| Label harmonisation  | `flamevision`: fire/nofire kept; `dani215`: fire/not_fire renamed to fire/nofire; `minha`: fire-only subset used |
+| Integrity check      | `PIL.Image.verify()` on every file; corrupt files dropped per source                           |
+| Deduplication        | Perceptual hash (`imagehash.phash`) computed per image; `drop_duplicates(subset='phash', keep='first')` removes near-duplicates within and across sources |
+| Split                | Two-stage `sklearn.model_selection.train_test_split`, stratified on label, `random_state=42`, 80 / 10 / 10 for train / val / test |
+| Resize and save      | Each image opened, converted to RGB, resized to 224 x 224 with LANCZOS resampling, re-encoded as JPEG into `data/processed/{split}/{label}/` |
+| Label CSV            | Emitted as `path,label,split` with label encoded as integer (fire=1, nofire=0)                 |
+
+The stratified split is deterministic given `RANDOM_STATE=42`, so rerunning preprocessing produces byte-identical `labels.csv` contents (path ordering aside).
+
 ## Architectures
 
 **ViT-B/16** uses the standard Vision Transformer with 12 encoder blocks operating on 16x16 patch embeddings (768-d). A dropout layer (p=0.1) precedes the binary classification head. Total parameters: ~85.8M.
