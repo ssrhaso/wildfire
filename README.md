@@ -250,6 +250,23 @@ python src/analyse_results.py --model hybrid
 
 Outputs are written to `results/analysis/<model>/` and include summary statistics (CSV), pairwise t-tests with Cohen's d, box plots, validation curves, learning rate schedules, and confusion matrices.
 
+### Metric Definitions
+
+Reported metrics use the `fire` class as the positive label (`label=1` in [data/processed/labels.csv](data/processed/labels.csv)). Test-set evaluation occurs on the checkpoint with the lowest validation loss.
+
+| Metric                 | Definition                                                                 |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Accuracy               | (TP + TN) / (TP + TN + FP + FN)                                            |
+| Precision (fire)       | TP / (TP + FP)                                                             |
+| Recall (fire)          | TP / (TP + FN)                                                             |
+| F1 (fire)              | 2 * P * R / (P + R), computed via `sklearn.metrics.f1_score(pos_label=1)`  |
+| F1 (nofire)            | Same formula with `pos_label=0`                                            |
+| Macro F1               | Mean of F1 (fire) and F1 (nofire)                                          |
+| Cross-seed aggregation | Per-config mean and std over five seeds (0, 5, 10, 15, 20)                 |
+| Significance test      | Welch's t-test via `scipy.stats.ttest_ind(a, b, equal_var=False)`          |
+| Effect size            | Cohen's d with pooled standard deviation (ddof=1 per group, pooled n-2)    |
+| Significance threshold | p < 0.05 flags a pair as significant in `statistics.csv`                   |
+
 ### Figure Manifest
 
 Every artefact produced by the analysis pipeline, with its intended purpose. All plots are written as both `.pdf` (vector) and `.png` (raster) except the CSVs.
