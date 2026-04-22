@@ -368,3 +368,29 @@ wildfire/
 - Generate cross-model comparison figures (accuracy vs trainable parameter %)
 - Produce t-SNE/UMAP feature space visualisations at different freezing levels
 - Explore progressive unfreezing schedules as an alternative to static freezing
+
+## References
+
+Architectures and methods:
+
+- Dosovitskiy et al., *An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale*, ICLR 2021. [arXiv:2010.11929](https://arxiv.org/abs/2010.11929)
+- He et al., *Deep Residual Learning for Image Recognition*, CVPR 2016. [arXiv:1512.03385](https://arxiv.org/abs/1512.03385)
+- Loshchilov and Hutter, *Decoupled Weight Decay Regularization (AdamW)*, ICLR 2019. [arXiv:1711.05101](https://arxiv.org/abs/1711.05101)
+- Loshchilov and Hutter, *SGDR: Stochastic Gradient Descent with Warm Restarts (cosine annealing)*, ICLR 2017. [arXiv:1608.03983](https://arxiv.org/abs/1608.03983)
+- Selvaraju et al., *Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization*, ICCV 2017. [arXiv:1610.02391](https://arxiv.org/abs/1610.02391)
+- Ioffe and Szegedy, *Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift*, ICML 2015. [arXiv:1502.03167](https://arxiv.org/abs/1502.03167)
+
+Software and pretrained weights:
+
+- PyTorch: [pytorch.org](https://pytorch.org)
+- torchvision models: [pytorch.org/vision/stable/models.html](https://pytorch.org/vision/stable/models.html)
+- timm (PyTorch Image Models): [github.com/huggingface/pytorch-image-models](https://github.com/huggingface/pytorch-image-models)
+- pytorch-grad-cam: [github.com/jacobgil/pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam)
+- imagehash: [github.com/JohannesBuchner/imagehash](https://github.com/JohannesBuchner/imagehash)
+- Weights & Biases: [wandb.ai](https://wandb.ai)
+
+Datasets:
+
+- FlameVision: [kaggle.com/datasets/warcoder/flamevision-dataset-for-wildfire-classification](https://www.kaggle.com/datasets/warcoder/flamevision-dataset-for-wildfire-classification)
+- Dani215 Fire Dataset: [kaggle.com/datasets/dani215/fire-dataset](https://www.kaggle.com/datasets/dani215/fire-dataset)
+- Forest Fire / Smoke (Minha): [kaggle.com/datasets/amerzishminha/forest-fire-smoke-and-non-fire-image-dataset](https://www.kaggle.com/datasets/amerzishminha/forest-fire-smoke-and-non-fire-image-dataset)
