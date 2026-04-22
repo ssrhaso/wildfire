@@ -238,6 +238,43 @@ make test-resnet
 make test-hybrid
 ```
 
+### Environment and Reproducibility
+
+Runtime dependencies are pinned to minimums in [requirements.txt](requirements.txt):
+
+| Component   | Constraint      | Role                                                |
+| ----------- | --------------- | --------------------------------------------------- |
+| Python      | 3.10+           | Interpreter                                         |
+| torch       | >= 2.2.0        | Training loop, AMP, determinism flags               |
+| torchvision | >= 0.17.0       | Pretrained weights and `transforms.v2`              |
+| timm        | >= 0.9.12       | Hybrid architecture building blocks                 |
+| scikit-learn| >= 1.3.0        | F1, classification report, stratified split        |
+| scipy       | >= 1.11.0       | Welch's t-test                                      |
+| imagehash   | >= 4.3.1        | Perceptual-hash deduplication                       |
+| grad-cam    | >= 1.4.8        | Grad-CAM visualisations                             |
+| wandb       | >= 0.15.0       | Experiment tracking                                 |
+
+Determinism is established inside `set_seed` in [src/run_experiment.py](src/run_experiment.py):
+
+```python
+random.seed(seed); np.random.seed(seed)
+torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = True
+```
+
+Per-run reproducibility notes:
+
+- Every invocation logs GPU name, total GPU memory, and per-epoch wall-clock time, all captured in the `seed_<n>.json` artefact under `results/<model>/<freeze_config>/`.
+- `run_config` in the JSON records the full argument set (optimiser, lr, weight decay, dropout, batch size, gradient accumulation steps, effective batch size, AMP flag, dataset counts, class weights, and parameter counts) so a single file reproduces the exact setup.
+- Re-running an already-completed `(model, freeze_config, seed)` triple is skipped by the shell runners under [scripts/](scripts/); delete the JSON to force a rerun.
+
+Minimal single-run reproduction:
+
+```bash
+python src/run_experiment.py --config configs/vit.yaml --freeze-config freeze_patch_blocks0-8 --seed 0
+```
+
 ## Analysis
 
 Analysis runs automatically at the end of each experiment script. To regenerate manually:
