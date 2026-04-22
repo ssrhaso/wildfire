@@ -250,6 +250,22 @@ python src/analyse_results.py --model hybrid
 
 Outputs are written to `results/analysis/<model>/` and include summary statistics (CSV), pairwise t-tests with Cohen's d, box plots, validation curves, learning rate schedules, and confusion matrices.
 
+### Figure Manifest
+
+Every artefact produced by the analysis pipeline, with its intended purpose. All plots are written as both `.pdf` (vector) and `.png` (raster) except the CSVs.
+
+| Artefact                                          | Contents                                                                  |
+| ------------------------------------------------- | ------------------------------------------------------------------------- |
+| `results/analysis/<model>/summary.csv`            | Per-config aggregated metrics (mean and std across seeds)                 |
+| `results/analysis/<model>/statistics.csv`         | Pairwise Welch's t-tests and Cohen's d between every pair of configs      |
+| `results/analysis/<model>/boxplot_accuracy.*`     | Test accuracy distribution across seeds, one box per freeze config        |
+| `results/analysis/<model>/confusion_matrices.*`   | Grid of test-set confusion matrices, one per freeze config                |
+| `results/analysis/<model>/train_val_curves.*`     | Train and validation loss / accuracy per epoch, overlaid across seeds     |
+| `results/analysis/<model>/val_curves.*`           | Validation loss / accuracy only, per epoch, across seeds                  |
+| `results/analysis/<model>/val_f1_fire_curves.*`   | Per-epoch validation F1 on the fire class, across seeds                   |
+| `results/analysis/<model>/lr_schedule.*`          | Cosine annealing learning-rate schedule actually applied                  |
+| `results/analysis/cross_model_comparison.*`       | Best-config test accuracy compared across ViT, ResNet, and Hybrid         |
+
 ## Project Structure
 
 ```
