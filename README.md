@@ -144,6 +144,27 @@ All models share the following configuration:
 - **Deterministic mode:** Enabled (cudnn.deterministic=True, cudnn.benchmark=True)
 - **Experiment tracking:** Weights & Biases (project: `wildfire-freezing`)
 
+### Full Training Recipe
+
+Additional details not covered above, grounded in [src/run_experiment.py](src/run_experiment.py) and [src/dataset.py](src/dataset.py):
+
+| Component                  | Value                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------- |
+| Input resolution           | 224 x 224                                                                                      |
+| Normalisation              | ImageNet mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]                                 |
+| Train augmentation         | RandomResizedCrop(224, scale=(0.7, 1.0)), HFlip(p=0.5), VFlip(p=0.5), Rotation(15 deg)         |
+|                            | ColorJitter(b=0.3, c=0.3, s=0.2, h=0.05), RandomGrayscale(p=0.05), GaussianBlur(k=3, p=0.2)    |
+|                            | RandomErasing(p=0.1, scale=(0.02, 0.1))                                                        |
+| Eval transform             | Resize(256), CenterCrop(224)                                                                   |
+| AdamW betas / eps          | (0.9, 0.999) / 1e-8 (PyTorch defaults)                                                         |
+| Gradient clipping          | L2 norm clipped at max_norm=1.0                                                                |
+| Mixed precision            | Optional via `--amp` (torch.amp.autocast on CUDA)                                              |
+| Early stopping monitor     | Validation loss (patience=5, min_delta=1e-4)                                                   |
+| Model selection            | Best-val-loss checkpoint restored before test evaluation                                       |
+| DataLoader                 | num_workers=4, pin_memory=True, drop_last=True (train only)                                    |
+| Class weighting            | Inverse frequency computed on train split, passed to CrossEntropyLoss                          |
+| Reported test metrics      | Accuracy, loss, precision/recall/F1 (per class), confusion matrix                              |
+
 ## Getting Started
 
 ### Prerequisites
