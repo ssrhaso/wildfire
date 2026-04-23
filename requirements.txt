@@ -33,4 +33,4 @@ wandb>=0.15.0  # Weights & Biases
 # UTILITIES
 pyyaml>=6.0      # loading base_config.yaml
 tqdm>=4.65.0     # progress bars
-kaggle 
+kaggle>=1.6.0    # dataset download via Kaggle API
