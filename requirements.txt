@@ -12,9 +12,6 @@
 torch>=2.2.0
 torchvision>=0.17.0
 
-# PRETRAINED models & hybrid architectures
-timm>=0.9.12  # for hybrid CNN-ViT options like CoaT, CvT
-
 # GRADCAM
 grad-cam>=1.4.8  # pytorch-grad-cam, works plug-and-play with ResNet + ViT
 
