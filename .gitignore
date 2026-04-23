@@ -51,3 +51,15 @@ freeze_backbone_seed_0_best.pt
 .coverage.*
 coverage.xml
 htmlcov/
+
+# Secrets and credentials
+kaggle.json
+.kaggle/
+*.pem
+*.key
+*.crt
+.netrc
+.env.local
+.env.*.local
+secrets/
+credentials/
