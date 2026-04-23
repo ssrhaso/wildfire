@@ -63,3 +63,17 @@ kaggle.json
 .env.*.local
 secrets/
 credentials/
+
+# Logs and temporary files
+*.log
+logs/
+log/
+*.tmp
+tmp/
+temp/
+*.bak
+*.orig
+*.rej
+nohup.out
+core
+core.*
