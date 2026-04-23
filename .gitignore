@@ -39,3 +39,15 @@ wandb/
 # Jupyter
 .ipynb_checkpoints/
 freeze_backbone_seed_0_best.pt
+
+# Lint, type-check, test caches
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
