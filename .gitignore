@@ -77,3 +77,18 @@ temp/
 nohup.out
 core
 core.*
+
+# Model artefacts and dataset archives
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.h5
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
