@@ -1,6 +1,13 @@
 # =============================================================================
 # Requires: Python 3.10 or newer
 # Install: pip install -r requirements.txt
+#
+# GPU install:
+#   The plain `pip install torch` pulls the CPU-only wheel on Linux. For CUDA,
+#   install torch first from the PyTorch wheel index, then run this file:
+#     pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#     pip install -r requirements.txt
+#   Substitute cu118 / cu124 / etc. as appropriate for your CUDA toolkit.
 # =============================================================================
 
 # CORE DEEP LEARNING
