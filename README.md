@@ -33,38 +33,38 @@ Best: `freeze_conv1_layer1-3` (63.66% trainable) at 98.73%. The top four configs
 
 ### Hybrid CNN-ViT (21/21 configs complete)
 
-| Freeze Config                             | Trainable (%) | Test Accuracy   | Test F1 (Fire) | Seeds |
-| ----------------------------------------- | ------------- | --------------- | -------------- | ----- |
-| `freeze_backbone`                       | 90.96%        | 98.82 ± 0.23%  | 0.989 ± 0.002 | 5     |
-| `freeze_blocks0-11`                     | 10.03%        | 98.79 ± 0.13%  | 0.988 ± 0.001 | 5     |
-| `freeze_blocks0-8`                      | 32.53%        | 98.76 ± 0.19%  | 0.988 ± 0.002 | 5     |
-| `freeze_backbone_proj`                  | 90.13%        | 98.75 ± 0.17%  | 0.988 ± 0.002 | 5     |
-| `freeze_transformer_proj`               | 9.04%         | 98.52 ± 0.29%  | 0.986 ± 0.003 | 5     |
-| `freeze_transformer_only`               | 9.87%         | 98.28 ± 1.16%  | 0.983 ± 0.011 | 5     |
-| `freeze_blocks0-5`                      | 55.02%        | 98.24 ± 0.59%  | 0.983 ± 0.006 | 5     |
-| `freeze_blocks0-3`                      | 70.01%        | 98.23 ± 0.97%  | 0.983 ± 0.010 | 5     |
-| `freeze_none`                           | 100.00%       | 97.61 ± 1.23%  | 0.977 ± 0.012 | 5     |
-| `freeze_backbone_proj_blocks0-3`        | 59.98%        | 97.48 ± 0.34%  | 0.976 ± 0.003 | 5     |
-| `freeze_backbone_proj_blocks0-5`        | 44.99%        | 96.42 ± 0.55%  | 0.965 ± 0.006 | 5     |
-| `freeze_backbone_proj_blocks0-8`        | 22.49%        | 92.47 ± 0.73%  | 0.926 ± 0.007 | 5     |
-| `freeze_backbone_proj_blocks0-11`       | 0.00%         | 69.02 ± 2.37%  | 0.703 ± 0.021 | 5     |
-| `freeze_transformer_proj_bnfrozen`      | 9.01%         | 68.84 ± 16.78% | 0.769 ± 0.118 | 5     |
-| `freeze_backbone_proj_transformer`      | 0.00%         | 68.46 ± 2.54%  | 0.699 ± 0.022 | 5     |
-| `freeze_transformer_only_bnfrozen`      | 9.84%         | 61.03 ± 20.58% | 0.742 ± 0.133 | 5     |
-| `freeze_blocks0-11_bnfrozen`            | 10.00%        | 59.94 ± 12.81% | 0.718 ± 0.060 | 5     |
-| `freeze_blocks0-5_bnfrozen`             | 54.98%        | 56.52 ± 10.50% | 0.704 ± 0.048 | 5     |
-| `freeze_blocks0-3_bnfrozen`             | 69.98%        | 52.87 ± 2.33%  | 0.682 ± 0.002 | 5     |
-| `freeze_none_bnfrozen`                  | 99.97%        | 51.83 ± 0.00%  | 0.683 ± 0.000 | 5     |
-| `freeze_blocks0-8_bnfrozen`             | 32.49%        | 51.71 ± 0.25%  | 0.586 ± 0.217 | 5     |
+| Freeze Config                        | Trainable (%) | Test Accuracy   | Test F1 (Fire) | Seeds |
+| ------------------------------------ | ------------- | --------------- | -------------- | ----- |
+| `freeze_backbone`                  | 90.96%        | 98.82 ± 0.23%  | 0.989 ± 0.002 | 5     |
+| `freeze_blocks0-11`                | 10.03%        | 98.79 ± 0.13%  | 0.988 ± 0.001 | 5     |
+| `freeze_blocks0-8`                 | 32.53%        | 98.76 ± 0.19%  | 0.988 ± 0.002 | 5     |
+| `freeze_backbone_proj`             | 90.13%        | 98.75 ± 0.17%  | 0.988 ± 0.002 | 5     |
+| `freeze_transformer_proj`          | 9.04%         | 98.52 ± 0.29%  | 0.986 ± 0.003 | 5     |
+| `freeze_transformer_only`          | 9.87%         | 98.28 ± 1.16%  | 0.983 ± 0.011 | 5     |
+| `freeze_blocks0-5`                 | 55.02%        | 98.24 ± 0.59%  | 0.983 ± 0.006 | 5     |
+| `freeze_blocks0-3`                 | 70.01%        | 98.23 ± 0.97%  | 0.983 ± 0.010 | 5     |
+| `freeze_none`                      | 100.00%       | 97.61 ± 1.23%  | 0.977 ± 0.012 | 5     |
+| `freeze_backbone_proj_blocks0-3`   | 59.98%        | 97.48 ± 0.34%  | 0.976 ± 0.003 | 5     |
+| `freeze_backbone_proj_blocks0-5`   | 44.99%        | 96.42 ± 0.55%  | 0.965 ± 0.006 | 5     |
+| `freeze_backbone_proj_blocks0-8`   | 22.49%        | 92.47 ± 0.73%  | 0.926 ± 0.007 | 5     |
+| `freeze_backbone_proj_blocks0-11`  | 0.00%         | 69.02 ± 2.37%  | 0.703 ± 0.021 | 5     |
+| `freeze_transformer_proj_bnfrozen` | 9.01%         | 68.84 ± 16.78% | 0.769 ± 0.118 | 5     |
+| `freeze_backbone_proj_transformer` | 0.00%         | 68.46 ± 2.54%  | 0.699 ± 0.022 | 5     |
+| `freeze_transformer_only_bnfrozen` | 9.84%         | 61.03 ± 20.58% | 0.742 ± 0.133 | 5     |
+| `freeze_blocks0-11_bnfrozen`       | 10.00%        | 59.94 ± 12.81% | 0.718 ± 0.060 | 5     |
+| `freeze_blocks0-5_bnfrozen`        | 54.98%        | 56.52 ± 10.50% | 0.704 ± 0.048 | 5     |
+| `freeze_blocks0-3_bnfrozen`        | 69.98%        | 52.87 ± 2.33%  | 0.682 ± 0.002 | 5     |
+| `freeze_none_bnfrozen`             | 99.97%        | 51.83 ± 0.00%  | 0.683 ± 0.000 | 5     |
+| `freeze_blocks0-8_bnfrozen`        | 32.49%        | 51.71 ± 0.25%  | 0.586 ± 0.217 | 5     |
 
 Best: `freeze_backbone` at 98.82%. The top four configs (all ≥98.75%) span a wide trainable-parameter range (10--91%), showing multiple paths to near-optimal performance. Freezing backbone+proj and progressively adding transformer blocks collapses sharply once blocks 0--8 are frozen (92.47% -> 69.02%). All seven BN-frozen variants degrade to 52--69%, confirming that freezing BatchNorm while the backbone is trainable breaks the network -- the batch statistics and learnable affine parameters must evolve together.
 
 ### Cross-Model Summary
 
-| Model        | Best Config                  | Best Test Accuracy | Linear Probe Accuracy |
-| ------------ | ---------------------------- | ------------------ | --------------------- |
-| ViT-B/16     | `freeze_patch_blocks0-8`   | 99.32 ± 0.16%     | 98.33% (head only)    |
-| ResNet-50    | `freeze_conv1_layer1-3`    | 98.73 ± 0.27%     | 96.63% (head only)    |
+| Model          | Best Config                | Best Test Accuracy | Linear Probe Accuracy |
+| -------------- | -------------------------- | ------------------ | --------------------- |
+| ViT-B/16       | `freeze_patch_blocks0-8` | 99.32 ± 0.16%     | 98.33% (head only)    |
+| ResNet-50      | `freeze_conv1_layer1-3`  | 98.73 ± 0.27%     | 96.63% (head only)    |
 | Hybrid CNN-ViT | `freeze_backbone`        | 98.82 ± 0.23%     | 68.46% (head only)    |
 
 ViT-B/16 is the strongest architecture for this task. The Hybrid model matches ResNet but cannot be linear-probed effectively: its randomly-initialised conv projection and transformer stack need training to produce useful representations for the head.
@@ -91,15 +91,15 @@ Training augmentations include random resized crop, horizontal/vertical flips, r
 
 End-to-end steps applied by [src/preprocess.py](src/preprocess.py) to go from raw Kaggle downloads to `data/processed/labels.csv`:
 
-| Step                 | Details                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------- |
-| Image collection     | Recursive walk across the three source roots; accepted extensions .jpg, .jpeg, .png, .tif, .tiff |
-| Label harmonisation  | `flamevision`: fire/nofire kept; `dani215`: fire/not_fire renamed to fire/nofire; `minha`: fire-only subset used |
-| Integrity check      | `PIL.Image.verify()` on every file; corrupt files dropped per source                           |
-| Deduplication        | Perceptual hash (`imagehash.phash`) computed per image; `drop_duplicates(subset='phash', keep='first')` removes near-duplicates within and across sources |
-| Split                | Two-stage `sklearn.model_selection.train_test_split`, stratified on label, `random_state=42`, 80 / 10 / 10 for train / val / test |
-| Resize and save      | Each image opened, converted to RGB, resized to 224 x 224 with LANCZOS resampling, re-encoded as JPEG into `data/processed/{split}/{label}/` |
-| Label CSV            | Emitted as `path,label,split` with label encoded as integer (fire=1, nofire=0)                 |
+| Step                | Details                                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Image collection    | Recursive walk across the three source roots; accepted extensions .jpg, .jpeg, .png, .tif, .tiff                                                              |
+| Label harmonisation | `flamevision`: fire/nofire kept; `dani215`: fire/not_fire renamed to fire/nofire; `minha`: fire-only subset used                                        |
+| Integrity check     | `PIL.Image.verify()` on every file; corrupt files dropped per source                                                                                        |
+| Deduplication       | Perceptual hash (`imagehash.phash`) computed per image; `drop_duplicates(subset='phash', keep='first')` removes near-duplicates within and across sources |
+| Split               | Two-stage `sklearn.model_selection.train_test_split`, stratified on label, `random_state=42`, 80 / 10 / 10 for train / val / test                         |
+| Resize and save     | Each image opened, converted to RGB, resized to 224 x 224 with LANCZOS resampling, re-encoded as JPEG into `data/processed/{split}/{label}/`                |
+| Label CSV           | Emitted as `path,label,split` with label encoded as integer (fire=1, nofire=0)                                                                              |
 
 The stratified split is deterministic given `RANDOM_STATE=42`, so rerunning preprocessing produces byte-identical `labels.csv` contents (path ordering aside).
 
@@ -164,22 +164,22 @@ All models share the following configuration:
 
 Additional details not covered above, grounded in [src/run_experiment.py](src/run_experiment.py) and [src/dataset.py](src/dataset.py):
 
-| Component                  | Value                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------- |
-| Input resolution           | 224 x 224                                                                                      |
-| Normalisation              | ImageNet mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]                                 |
-| Train augmentation         | RandomResizedCrop(224, scale=(0.7, 1.0)), HFlip(p=0.5), VFlip(p=0.5), Rotation(15 deg)         |
-|                            | ColorJitter(b=0.3, c=0.3, s=0.2, h=0.05), RandomGrayscale(p=0.05), GaussianBlur(k=3, p=0.2)    |
-|                            | RandomErasing(p=0.1, scale=(0.02, 0.1))                                                        |
-| Eval transform             | Resize(256), CenterCrop(224)                                                                   |
-| AdamW betas / eps          | (0.9, 0.999) / 1e-8 (PyTorch defaults)                                                         |
-| Gradient clipping          | L2 norm clipped at max_norm=1.0                                                                |
-| Mixed precision            | Optional via `--amp` (torch.amp.autocast on CUDA)                                              |
-| Early stopping monitor     | Validation loss (patience=5, min_delta=1e-4)                                                   |
-| Model selection            | Best-val-loss checkpoint restored before test evaluation                                       |
-| DataLoader                 | num_workers=4, pin_memory=True, drop_last=True (train only)                                    |
-| Class weighting            | Inverse frequency computed on train split, passed to CrossEntropyLoss                          |
-| Reported test metrics      | Accuracy, loss, precision/recall/F1 (per class), confusion matrix                              |
+| Component              | Value                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| Input resolution       | 224 x 224                                                                                   |
+| Normalisation          | ImageNet mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]                              |
+| Train augmentation     | RandomResizedCrop(224, scale=(0.7, 1.0)), HFlip(p=0.5), VFlip(p=0.5), Rotation(15 deg)      |
+|                        | ColorJitter(b=0.3, c=0.3, s=0.2, h=0.05), RandomGrayscale(p=0.05), GaussianBlur(k=3, p=0.2) |
+|                        | RandomErasing(p=0.1, scale=(0.02, 0.1))                                                     |
+| Eval transform         | Resize(256), CenterCrop(224)                                                                |
+| AdamW betas / eps      | (0.9, 0.999) / 1e-8 (PyTorch defaults)                                                      |
+| Gradient clipping      | L2 norm clipped at max_norm=1.0                                                             |
+| Mixed precision        | Optional via `--amp` (torch.amp.autocast on CUDA)                                         |
+| Early stopping monitor | Validation loss (patience=5, min_delta=1e-4)                                                |
+| Model selection        | Best-val-loss checkpoint restored before test evaluation                                    |
+| DataLoader             | num_workers=4, pin_memory=True, drop_last=True (train only)                                 |
+| Class weighting        | Inverse frequency computed on train split, passed to CrossEntropyLoss                       |
+| Reported test metrics  | Accuracy, loss, precision/recall/F1 (per class), confusion matrix                           |
 
 ## Getting Started
 
@@ -242,17 +242,17 @@ make test-hybrid
 
 Runtime dependencies are pinned to minimums in [requirements.txt](requirements.txt):
 
-| Component   | Constraint      | Role                                                |
-| ----------- | --------------- | --------------------------------------------------- |
-| Python      | 3.10+           | Interpreter                                         |
-| torch       | >= 2.2.0        | Training loop, AMP, determinism flags               |
-| torchvision | >= 0.17.0       | Pretrained weights and `transforms.v2`              |
-| timm        | >= 0.9.12       | Hybrid architecture building blocks                 |
-| scikit-learn| >= 1.3.0        | F1, classification report, stratified split        |
-| scipy       | >= 1.11.0       | Welch's t-test                                      |
-| imagehash   | >= 4.3.1        | Perceptual-hash deduplication                       |
-| grad-cam    | >= 1.4.8        | Grad-CAM visualisations                             |
-| wandb       | >= 0.15.0       | Experiment tracking                                 |
+| Component    | Constraint | Role                                        |
+| ------------ | ---------- | ------------------------------------------- |
+| Python       | 3.10+      | Interpreter                                 |
+| torch        | >= 2.2.0   | Training loop, AMP, determinism flags       |
+| torchvision  | >= 0.17.0  | Pretrained weights and `transforms.v2`    |
+| timm         | >= 0.9.12  | Hybrid architecture building blocks         |
+| scikit-learn | >= 1.3.0   | F1, classification report, stratified split |
+| scipy        | >= 1.11.0  | Welch's t-test                              |
+| imagehash    | >= 4.3.1   | Perceptual-hash deduplication               |
+| grad-cam     | >= 1.4.8   | Grad-CAM visualisations                     |
+| wandb        | >= 0.15.0  | Experiment tracking                         |
 
 Determinism is established inside `set_seed` in [src/run_experiment.py](src/run_experiment.py):
 
@@ -291,34 +291,34 @@ Outputs are written to `results/analysis/<model>/` and include summary statistic
 
 Reported metrics use the `fire` class as the positive label (`label=1` in [data/processed/labels.csv](data/processed/labels.csv)). Test-set evaluation occurs on the checkpoint with the lowest validation loss.
 
-| Metric                 | Definition                                                                 |
-| ---------------------- | -------------------------------------------------------------------------- |
-| Accuracy               | (TP + TN) / (TP + TN + FP + FN)                                            |
-| Precision (fire)       | TP / (TP + FP)                                                             |
-| Recall (fire)          | TP / (TP + FN)                                                             |
-| F1 (fire)              | 2 * P * R / (P + R), computed via `sklearn.metrics.f1_score(pos_label=1)`  |
-| F1 (nofire)            | Same formula with `pos_label=0`                                            |
-| Macro F1               | Mean of F1 (fire) and F1 (nofire)                                          |
-| Cross-seed aggregation | Per-config mean and std over five seeds (0, 5, 10, 15, 20)                 |
-| Significance test      | Welch's t-test via `scipy.stats.ttest_ind(a, b, equal_var=False)`          |
-| Effect size            | Cohen's d with pooled standard deviation (ddof=1 per group, pooled n-2)    |
-| Significance threshold | p < 0.05 flags a pair as significant in `statistics.csv`                   |
+| Metric                 | Definition                                                                  |
+| ---------------------- | --------------------------------------------------------------------------- |
+| Accuracy               | (TP + TN) / (TP + TN + FP + FN)                                             |
+| Precision (fire)       | TP / (TP + FP)                                                              |
+| Recall (fire)          | TP / (TP + FN)                                                              |
+| F1 (fire)              | 2 * P * R / (P + R), computed via `sklearn.metrics.f1_score(pos_label=1)` |
+| F1 (nofire)            | Same formula with `pos_label=0`                                           |
+| Macro F1               | Mean of F1 (fire) and F1 (nofire)                                           |
+| Cross-seed aggregation | Per-config mean and std over five seeds (0, 5, 10, 15, 20)                  |
+| Significance test      | Welch's t-test via `scipy.stats.ttest_ind(a, b, equal_var=False)`         |
+| Effect size            | Cohen's d with pooled standard deviation (ddof=1 per group, pooled n-2)     |
+| Significance threshold | p < 0.05 flags a pair as significant in `statistics.csv`                  |
 
 ### Figure Manifest
 
 Every artefact produced by the analysis pipeline, with its intended purpose. All plots are written as both `.pdf` (vector) and `.png` (raster) except the CSVs.
 
-| Artefact                                          | Contents                                                                  |
-| ------------------------------------------------- | ------------------------------------------------------------------------- |
-| `results/analysis/<model>/summary.csv`            | Per-config aggregated metrics (mean and std across seeds)                 |
-| `results/analysis/<model>/statistics.csv`         | Pairwise Welch's t-tests and Cohen's d between every pair of configs      |
-| `results/analysis/<model>/boxplot_accuracy.*`     | Test accuracy distribution across seeds, one box per freeze config        |
-| `results/analysis/<model>/confusion_matrices.*`   | Grid of test-set confusion matrices, one per freeze config                |
-| `results/analysis/<model>/train_val_curves.*`     | Train and validation loss / accuracy per epoch, overlaid across seeds     |
-| `results/analysis/<model>/val_curves.*`           | Validation loss / accuracy only, per epoch, across seeds                  |
-| `results/analysis/<model>/val_f1_fire_curves.*`   | Per-epoch validation F1 on the fire class, across seeds                   |
-| `results/analysis/<model>/lr_schedule.*`          | Cosine annealing learning-rate schedule actually applied                  |
-| `results/analysis/cross_model_comparison.*`       | Best-config test accuracy compared across ViT, ResNet, and Hybrid         |
+| Artefact                                          | Contents                                                              |
+| ------------------------------------------------- | --------------------------------------------------------------------- |
+| `results/analysis/<model>/summary.csv`          | Per-config aggregated metrics (mean and std across seeds)             |
+| `results/analysis/<model>/statistics.csv`       | Pairwise Welch's t-tests and Cohen's d between every pair of configs  |
+| `results/analysis/<model>/boxplot_accuracy.*`   | Test accuracy distribution across seeds, one box per freeze config    |
+| `results/analysis/<model>/confusion_matrices.*` | Grid of test-set confusion matrices, one per freeze config            |
+| `results/analysis/<model>/train_val_curves.*`   | Train and validation loss / accuracy per epoch, overlaid across seeds |
+| `results/analysis/<model>/val_curves.*`         | Validation loss / accuracy only, per epoch, across seeds              |
+| `results/analysis/<model>/val_f1_fire_curves.*` | Per-epoch validation F1 on the fire class, across seeds               |
+| `results/analysis/<model>/lr_schedule.*`        | Cosine annealing learning-rate schedule actually applied              |
+| `results/analysis/cross_model_comparison.*`     | Best-config test accuracy compared across ViT, ResNet, and Hybrid     |
 
 ## Project Structure
 
