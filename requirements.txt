@@ -1,9 +1,16 @@
+# Requires: Python 3.10 or newer
+# Install: pip install -r requirements.txt
+#
+# GPU install:
+#   The plain `pip install torch` pulls the CPU-only wheel on Linux. For CUDA,
+#   install torch first from the PyTorch wheel index, then run this file:
+#     pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#     pip install -r requirements.txt
+#   Substitute cu118 / cu124 / etc. as appropriate for your CUDA toolkit.
+
 # CORE DEEP LEARNING
 torch>=2.2.0
 torchvision>=0.17.0
-
-# PRETRAINED models & hybrid architectures
-timm>=0.9.12  # for hybrid CNN-ViT options like CoaT, CvT
 
 # GRADCAM
 grad-cam>=1.4.8  # pytorch-grad-cam, works plug-and-play with ResNet + ViT
@@ -28,4 +35,4 @@ wandb>=0.15.0  # Weights & Biases
 # UTILITIES
 pyyaml>=6.0      # loading base_config.yaml
 tqdm>=4.65.0     # progress bars
-kaggle 
+kaggle>=1.6.0    # dataset download via Kaggle API

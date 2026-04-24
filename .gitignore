@@ -39,3 +39,56 @@ wandb/
 # Jupyter
 .ipynb_checkpoints/
 freeze_backbone_seed_0_best.pt
+
+# Lint, type-check, test caches
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Secrets and credentials
+kaggle.json
+.kaggle/
+*.pem
+*.key
+*.crt
+.netrc
+.env.local
+.env.*.local
+secrets/
+credentials/
+
+# Logs and temporary files
+*.log
+logs/
+log/
+*.tmp
+tmp/
+temp/
+*.bak
+*.orig
+*.rej
+nohup.out
+core
+core.*
+
+# Model artefacts and dataset archives
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.h5
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
