@@ -11,7 +11,7 @@ All values are mean ± std across seeds; configs sorted by test accuracy.
 | Freeze Config               | Trainable (%) | Test Accuracy  | Test F1 (Fire) | Seeds |
 | --------------------------- | ------------- | -------------- | -------------- | ----- |
 | `freeze_patch_blocks0-8`  | 24.79%        | 99.32 ± 0.16% | 0.993 ± 0.002 | 5     |
-| `freeze_patch_blocks0-5`  | 49.57%        | 99.07 ± 0.11% | 0.991 ± 0.001 | 4     |
+| `freeze_patch_blocks0-5`  | 49.57%        | 99.10 ± 0.12% | 0.991 ± 0.001 | 5     |
 | `freeze_patch_blocks0-11` | 0.00%         | 98.33 ± 0.08% | 0.984 ± 0.001 | 5     |
 | `freeze_patch`            | 99.13%        | 96.41 ± 0.27% | 0.965 ± 0.003 | 5     |
 | `freeze_none`             | 100.00%       | 93.61 ± 5.45% | 0.939 ± 0.052 | 5     |
@@ -57,7 +57,7 @@ Best: `freeze_conv1_layer1-3` (63.66% trainable) at 98.73%. The top four configs
 | `freeze_none_bnfrozen`             | 99.97%        | 51.83 ± 0.00%  | 0.683 ± 0.000 | 5     |
 | `freeze_blocks0-8_bnfrozen`        | 32.49%        | 51.71 ± 0.25%  | 0.586 ± 0.217 | 5     |
 
-Best: `freeze_backbone` at 98.82%. The top four configs (all ≥98.75%) span a wide trainable-parameter range (10--91%), showing multiple paths to near-optimal performance. Freezing backbone+proj and progressively adding transformer blocks collapses sharply once blocks 0--8 are frozen (92.47% -> 69.02%). All seven BN-frozen variants degrade to 52--69%, confirming that freezing BatchNorm while the backbone is trainable breaks the network -- the batch statistics and learnable affine parameters must evolve together.
+Best: `freeze_backbone` at 98.82%. The top four configs (all ≥98.75%) span a wide trainable-parameter range (10--91%), showing multiple paths to near-optimal performance. Freezing backbone+proj and progressively adding transformer blocks collapses sharply once blocks 0--8 are frozen (92.47% -> 69.02%). All seven BN-frozen variants degrade to 52--69%, confirming that freezing BatchNorm while the backbone is trainable breaks the network: the batch statistics and learnable affine parameters must evolve together.
 
 ### Cross-Model Summary
 
@@ -220,7 +220,7 @@ Each model can be run independently. The scripts automatically skip completed ru
 # Linux/Mac
 make experiments-vit              # ViT-B/16 (6 configs x 5 seeds = 30 runs)
 make experiments-resnet           # ResNet-50 (6 configs x 5 seeds = 30 runs)
-make experiments-hybrid           # Hybrid CNN-ViT (5 configs x 5 seeds = 25 runs)
+make experiments-hybrid           # Hybrid CNN-ViT (21 configs x 5 seeds = 105 runs)
 make experiments-all              # All models sequentially
 
 # Windows
@@ -326,6 +326,8 @@ Every artefact produced by the analysis pipeline, with its intended purpose. All
 wildfire/
   configs/
     config.yaml                # hybrid model architecture config
+    resnet.yaml                # ResNet-50 training config
+    vit.yaml                   # ViT-B/16 training config
   scripts/
     run_vit.ps1 / .sh          # ViT experiment runner
     run_resnet.ps1 / .sh       # ResNet experiment runner
@@ -357,15 +359,14 @@ wildfire/
 
 - **Hybrid CNN-ViT:** complete (21 configs x 5 seeds = 105 runs, including BatchNorm-frozen variants). Best: `freeze_backbone` at 98.82%.
 - **ResNet-50:** complete (6 configs x 5 seeds = 30 runs). Best: `freeze_conv1_layer1-3` at 98.73%.
-- **ViT-B/16:** 5/6 configs complete. Best so far: `freeze_patch_blocks0-8` at 99.32%. Remaining: `freeze_patch_blocks0-3` (5 seeds) and 1 missing seed for `freeze_patch_blocks0-5`.
+- **ViT-B/16:** 5/6 configs complete. Best so far: `freeze_patch_blocks0-8` at 99.32%. Remaining: `freeze_patch_blocks0-3` (5 seeds).
 - **Analysis pipeline:** statistical tests, box plots, validation curves, confusion matrices, cross-model comparison, and Grad-CAM visualisations all operational.
-- **BatchNorm investigation:** complete -- freezing BN while the backbone is unfrozen severely degrades performance (52--69% accuracy).
+- **BatchNorm investigation:** complete; freezing BN while the backbone is unfrozen severely degrades performance (52--69% accuracy).
 
 ## Future Work
 
-- Complete remaining ViT-B/16 config (`freeze_patch_blocks0-3`) and all ResNet-50 ablation runs
+- Complete remaining ViT-B/16 config (`freeze_patch_blocks0-3`)
 - Add ROC curves and AUC scores to the evaluation pipeline
-- Generate cross-model comparison figures (accuracy vs trainable parameter %)
 - Produce t-SNE/UMAP feature space visualisations at different freezing levels
 - Explore progressive unfreezing schedules as an alternative to static freezing
 
