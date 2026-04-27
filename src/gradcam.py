@@ -71,7 +71,25 @@ def build_model(model_name: str, freeze_config: str, checkpoint_path: Path) -> n
     model.load_state_dict(state["model_state_dict"])
     model.to(DEVICE)
     model.eval()
+
+    enable_gradcam_grads(model, model_name)
+
     return model
+
+def enable_gradcam_grads(model: nn.Module, model_name: str) -> None:
+    """Re-enable requires_grad on target layers so Grad-CAM can backprop through them.
+    """
+    if model_name == "resnet":
+        for p in model.encoder.layer4.parameters():
+            p.requires_grad = True
+    elif model_name == "vit":
+        last_block = model.encoder.encoder.layers[-1]
+        for p in last_block.parameters():
+            p.requires_grad = True
+    elif model_name == "hybrid":
+        last_block = model.transformer.layers[-1]
+        for p in last_block.parameters():
+            p.requires_grad = True
 
 
 def get_target_layers(model: nn.Module, model_name: str) -> List[nn.Module]:

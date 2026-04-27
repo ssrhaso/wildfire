@@ -208,12 +208,15 @@ def plot_boxplot(
 
     df = pd.DataFrame({"Accuracy": data, "Config": labels})
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    figsize = (20,5) if model == "hybrid" else (10,5)
+    fig, ax = plt.subplots(figsize=figsize)
     sns.boxplot(data=df, x="Config", y="Accuracy", ax=ax, palette="Set2")
     ax.set_title(f"Test accuracy distribution - {model.upper()} freezing configs")
     ax.set_xlabel("")
     ax.set_ylabel("Test Accuracy")
-    ax.tick_params(axis="x", rotation=25)
+    rotation = 45 if model == "hybrid" else 25
+    ax.tick_params(axis="x", rotation=rotation)
+    plt.setp(ax.get_xticklabels(), rotation=rotation, ha="right")
     fig.tight_layout()
 
     for fmt in ["png", "pdf"]:
