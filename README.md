@@ -124,18 +124,18 @@ All models are initialised with ImageNet-1K pretrained weights.
 | `freeze_patch_blocks0-3`  | Above + blocks 0-3                         | ~66%        |
 | `freeze_patch_blocks0-5`  | Above + blocks 0-5                         | ~50%        |
 | `freeze_patch_blocks0-8`  | Above + blocks 0-8                         | ~25%        |
-| `freeze_patch_blocks0-11` | Above + all blocks                         | ~0.5%       |
+| `freeze_patch_blocks0-11` | Above + all blocks (linear probe)          | ~0.004%     |
 
 ### ResNet-50 (progressive layer freezing)
 
 | Config                    | What is Frozen            | Trainable % |
 | ------------------------- | ------------------------- | ----------- |
 | `freeze_none`           | Nothing                   | 100%        |
-| `freeze_conv1`          | conv1 + bn1               | ~99.7%      |
-| `freeze_conv1_layer1`   | Above + layer1 (3 blocks) | ~93%        |
-| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks) | ~78%        |
-| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks) | ~45%        |
-| `freeze_conv1_layer1-4` | Above + layer4 (3 blocks) | ~0.1%       |
+| `freeze_conv1`          | conv1 + bn1               | ~99.9%      |
+| `freeze_conv1_layer1`   | Above + layer1 (3 blocks) | ~99%        |
+| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks) | ~93.9%      |
+| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks) | ~63.7%      |
+| `freeze_conv1_layer1-4` | Above + layer4 (linear probe) | ~0.02%  |
 
 ### Hybrid CNN-ViT (component-level freezing)
 
