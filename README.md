@@ -35,8 +35,8 @@ Best: `freeze_conv1_layer1-3` (63.66% trainable) at 98.73%. The top four configs
 
 | Freeze Config                        | Trainable (%) | Test Accuracy   | Test F1 (Fire) | Seeds |
 | ------------------------------------ | ------------- | --------------- | -------------- | ----- |
-| `freeze_backbone`                  | 90.96%        | 98.82 ± 0.23%  | 0.989 ± 0.002 | 5     |
 | `freeze_blocks0-11`                | 10.03%        | 98.79 ± 0.13%  | 0.988 ± 0.001 | 5     |
+| `freeze_backbone`                  | 90.96%        | 98.78 ± 0.15%  | 0.988 ± 0.001 | 5     |
 | `freeze_blocks0-8`                 | 32.53%        | 98.76 ± 0.19%  | 0.988 ± 0.002 | 5     |
 | `freeze_backbone_proj`             | 90.13%        | 98.75 ± 0.17%  | 0.988 ± 0.002 | 5     |
 | `freeze_transformer_proj`          | 9.04%         | 98.52 ± 0.29%  | 0.986 ± 0.003 | 5     |
@@ -57,7 +57,7 @@ Best: `freeze_conv1_layer1-3` (63.66% trainable) at 98.73%. The top four configs
 | `freeze_none_bnfrozen`             | 99.97%        | 51.83 ± 0.00%  | 0.683 ± 0.000 | 5     |
 | `freeze_blocks0-8_bnfrozen`        | 32.49%        | 51.71 ± 0.25%  | 0.586 ± 0.217 | 5     |
 
-Best: `freeze_backbone` at 98.82%. The top four configs (all ≥98.75%) span a wide trainable-parameter range (10--91%), showing multiple paths to near-optimal performance. Freezing backbone+proj and progressively adding transformer blocks collapses sharply once blocks 0--8 are frozen (92.47% -> 69.02%). All seven BN-frozen variants degrade to 52--69%, confirming that freezing BatchNorm while the backbone is trainable breaks the network: the batch statistics and learnable affine parameters must evolve together.
+Best: `freeze_blocks0-11` at 98.79% and `freeze_backbone` at 98.78% are statistically tied. The top four configs (all ≥98.75%) span a 10-91% trainable-parameter range, so multiple paths reach near-optimal performance. Freezing backbone+proj while progressively adding ViT blocks collapses sharply once blocks 0-8 are frozen (92.47% to 69.02%): the bottleneck is the randomly-initialised 1x1 projection layer being held at random init. All seven BN-frozen variants degrade to 52-69%, confirming that freezing BN running statistics with a trainable backbone breaks the network.
 
 ### Cross-Model Summary
 
@@ -65,7 +65,7 @@ Best: `freeze_backbone` at 98.82%. The top four configs (all ≥98.75%) span a w
 | -------------- | -------------------------- | ------------------ | --------------------- |
 | ViT-B/16       | `freeze_patch_blocks0-8` | 99.32 ± 0.16%     | 98.33% (head only)    |
 | ResNet-50      | `freeze_conv1_layer1-3`  | 98.73 ± 0.27%     | 96.63% (head only)    |
-| Hybrid CNN-ViT | `freeze_backbone`        | 98.82 ± 0.23%     | 68.46% (head only)    |
+| Hybrid CNN-ViT | `freeze_backbone`        | 98.78 ± 0.15%     | 68.46% (head only)    |
 
 ViT-B/16 is the strongest architecture for this task. The Hybrid model matches ResNet but cannot be linear-probed effectively: its randomly-initialised conv projection and transformer stack need training to produce useful representations for the head.
 
