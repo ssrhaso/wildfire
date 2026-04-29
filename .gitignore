@@ -36,6 +36,9 @@ desktop.ini
 wandb/
 .claude/
 
+# Internal working notes (not part of the public artefact)
+notes/
+
 # Jupyter
 .ipynb_checkpoints/
 freeze_backbone_seed_0_best.pt
