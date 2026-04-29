@@ -2,11 +2,28 @@
 
 This project investigates how progressive layer freezing during transfer learning affects classification performance for binary wildfire detection (fire vs. no fire). Three pretrained architectures (ViT-B/16, ResNet-50, and a Hybrid CNN-ViT) are systematically evaluated across multiple freezing configurations, each repeated over five random seeds for statistical rigour. The goal is to determine how much fine-tuning is actually necessary when adapting large vision models to a domain-specific task.
 
+## Paper
+
+Ahmad, H., Modassir Mushtaq, I., and Machin, O. *Fire-Freezing: Layer-Freezing Ablations of ViT-B/16, ResNet-50, and a Hybrid CNN-ViT for Wildfire Classification*. UWE Bristol, 2026.
+
+This repository is the companion artefact to the paper. All numbers, tables, figures, and statistical claims in the paper are reproducible from the seed JSONs under `results/` via `src/analyse_results.py` and `scripts/paper_extract.py`.
+
+```bibtex
+@misc{ahmad2026firefreezing,
+  title  = {Fire-Freezing: Layer-Freezing Ablations of ViT-B/16, ResNet-50, and a Hybrid CNN-ViT for Wildfire Classification},
+  author = {Ahmad, Hasaan and Modassir Mushtaq, Ishaq and Machin, Orion},
+  year   = {2026},
+  note   = {School of Computing and Creative Technologies, UWE Bristol}
+}
+```
+
+The methodology follows Liu and Ahmad, *A Systematic Study of Layer Freezing Strategies for Transfer Learning in Music Genre Classification*, ICISS 2026.
+
 ## Results
 
 All values are mean ± std across seeds; configs sorted by test accuracy.
 
-### ViT-B/16 (5/6 configs complete, `freeze_patch_blocks0-3` pending)
+### ViT-B/16 (6/6 configs complete)
 
 | Freeze Config               | Trainable (%) | Test Accuracy  | Test F1 (Fire) | Seeds |
 | --------------------------- | ------------- | -------------- | -------------- | ----- |
