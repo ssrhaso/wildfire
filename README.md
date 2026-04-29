@@ -367,10 +367,11 @@ All 165 runs complete (33 configs x 5 seeds).
 
 ## Future Work
 
-- Complete remaining ViT-B/16 config (`freeze_patch_blocks0-3`)
-- Add ROC curves and AUC scores to the evaluation pipeline
-- Produce t-SNE/UMAP feature space visualisations at different freezing levels
-- Explore progressive unfreezing schedules as an alternative to static freezing
+- Per-layer CNN freezing within the Hybrid (currently the ResNet backbone is treated as a single unit).
+- Self-supervised pretraining (DINOv2, MAE, CLIP) and other backbones (Swin, ConvNeXt, EVA).
+- Differential learning rates per unfrozen segment.
+- Multi-class fire-severity prediction; cross-source generalisation tests.
+- ROC/AUC, t-SNE/UMAP feature visualisations, and Grad-CAM across all freezing depths.
 
 ## References
 
