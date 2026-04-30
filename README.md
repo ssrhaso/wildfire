@@ -17,8 +17,6 @@ This repository is the companion artefact to the paper. All numbers, tables, fig
 }
 ```
 
-The methodology follows Liu and Ahmad, *A Systematic Study of Layer Freezing Strategies for Transfer Learning in Music Genre Classification*, ICISS 2026.
-
 ## Results
 
 All values are mean ± std across seeds; configs sorted by test accuracy.
@@ -145,40 +143,40 @@ All models are initialised with ImageNet-1K pretrained weights.
 
 ### ResNet-50 (progressive layer freezing)
 
-| Config                    | What is Frozen            | Trainable % |
-| ------------------------- | ------------------------- | ----------- |
-| `freeze_none`           | Nothing                   | 100%        |
-| `freeze_conv1`          | conv1 + bn1               | ~99.9%      |
-| `freeze_conv1_layer1`   | Above + layer1 (3 blocks) | ~99%        |
-| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks) | ~93.9%      |
-| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks) | ~63.7%      |
-| `freeze_conv1_layer1-4` | Above + layer4 (linear probe) | ~0.02%  |
+| Config                    | What is Frozen                | Trainable % |
+| ------------------------- | ----------------------------- | ----------- |
+| `freeze_none`           | Nothing                       | 100%        |
+| `freeze_conv1`          | conv1 + bn1                   | ~99.9%      |
+| `freeze_conv1_layer1`   | Above + layer1 (3 blocks)     | ~99%        |
+| `freeze_conv1_layer1-2` | Above + layer2 (4 blocks)     | ~93.9%      |
+| `freeze_conv1_layer1-3` | Above + layer3 (6 blocks)     | ~63.7%      |
+| `freeze_conv1_layer1-4` | Above + layer4 (linear probe) | ~0.02%      |
 
 ### Hybrid CNN-ViT (component-level freezing)
 
 Standard configurations (prefix `freeze_`):
 
-| Config                  | What is Frozen                  | Trainable % |
-| ----------------------- | ------------------------------- | ----------- |
-| `none`                | Nothing                         | ~100%       |
-| `backbone`            | ResNet backbone (layers 1-3)    | ~91.0%      |
-| `backbone_proj`       | Backbone + 1x1 conv projection  | ~90.1%      |
-| `blocks0-3`           | ViT blocks 0-3                  | ~70.0%      |
-| `blocks0-5`           | ViT blocks 0-5                  | ~55.0%      |
-| `blocks0-8`           | ViT blocks 0-8                  | ~32.5%      |
-| `blocks0-11`          | ViT blocks 0-11                 | ~10.0%      |
-| `transformer_only`    | ViT transformer + CLS token     | ~9.9%       |
-| `transformer_proj`    | Transformer + conv projection   | ~9.0%       |
+| Config               | What is Frozen                 | Trainable % |
+| -------------------- | ------------------------------ | ----------- |
+| `none`             | Nothing                        | ~100%       |
+| `backbone`         | ResNet backbone (layers 1-3)   | ~91.0%      |
+| `backbone_proj`    | Backbone + 1x1 conv projection | ~90.1%      |
+| `blocks0-3`        | ViT blocks 0-3                 | ~70.0%      |
+| `blocks0-5`        | ViT blocks 0-5                 | ~55.0%      |
+| `blocks0-8`        | ViT blocks 0-8                 | ~32.5%      |
+| `blocks0-11`       | ViT blocks 0-11                | ~10.0%      |
+| `transformer_only` | ViT transformer + CLS token    | ~9.9%       |
+| `transformer_proj` | Transformer + conv projection  | ~9.0%       |
 
 Progressive backbone+projection (prefix `freeze_backbone_proj_`):
 
-| Config         | What is Frozen                          | Trainable % |
-| -------------- | --------------------------------------- | ----------- |
-| `blocks0-3`  | Backbone + proj + ViT blocks 0-3        | ~60.0%      |
-| `blocks0-5`  | Backbone + proj + ViT blocks 0-5        | ~45.0%      |
-| `blocks0-8`  | Backbone + proj + ViT blocks 0-8        | ~22.5%      |
-| `blocks0-11` | Backbone + proj + all ViT blocks        | ~0.0%       |
-| `transformer` | Backbone + proj + transformer + CLS    | ~0.0%       |
+| Config          | What is Frozen                      | Trainable % |
+| --------------- | ----------------------------------- | ----------- |
+| `blocks0-3`   | Backbone + proj + ViT blocks 0-3    | ~60.0%      |
+| `blocks0-5`   | Backbone + proj + ViT blocks 0-5    | ~45.0%      |
+| `blocks0-8`   | Backbone + proj + ViT blocks 0-8    | ~22.5%      |
+| `blocks0-11`  | Backbone + proj + all ViT blocks    | ~0.0%       |
+| `transformer` | Backbone + proj + transformer + CLS | ~0.0%       |
 
 BatchNorm-frozen variants (suffix `_bnfrozen`) lock the ResNet backbone's BN running statistics to ImageNet values. They are run for the seven standard configs above and excluded from the main analysis after universal convergence failure (52-69% accuracy); see the Hybrid results table.
 
