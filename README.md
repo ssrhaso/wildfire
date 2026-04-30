@@ -17,6 +17,30 @@ This repository is the companion artefact to the paper. All numbers, tables, fig
 }
 ```
 
+## Quick start
+
+Reproduce the headline ViT result from a fresh checkout (~5 minutes on a single GPU):
+
+```bash
+git clone https://github.com/ssrhaso/wildfire.git && cd wildfire
+make setup-linux                                                     # venv + deps + Kaggle download + preprocess
+source venv/bin/activate
+make run-one MODEL=vit CONFIG=freeze_patch_blocks0-8 SEED=0          # one cell of paper Table 4
+cat results/vit/freeze_patch_blocks0-8/seed_0.json                   # per-run metrics, hyperparameters, env
+```
+
+Other entry points:
+
+| Command                  | What it does                                                                  |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `make help`              | List all targets with one-line descriptions.                                  |
+| `make test-vit`          | Single-epoch smoke test; verifies the dataset and model load correctly.       |
+| `make experiments-vit`   | Run all 6 ViT freezing configs across 5 seeds (30 runs).                      |
+| `make reproduce-paper`   | Run the full 165-run sweep and regenerate all analysis (Linux/macOS).         |
+| `make analyse-all`       | Re-aggregate `results/<model>/` JSONs into `results/analysis/` CSVs and plots.|
+
+Replace `setup-linux` with `setup-windows`, and `experiments-*` with `experiments-*-win`, on Windows.
+
 ## Results at a glance
 
 | Model          | Best Config                | Best Test Accuracy | Linear Probe Accuracy |
