@@ -47,6 +47,9 @@ help:
 	@echo "  Quick tests (1 epoch, no wandb):"
 	@echo "    test-vit / test-resnet / test-hybrid"
 	@echo ""
+	@echo "  Single run (one cell of paper Table 4):"
+	@echo "    run-one MODEL=vit CONFIG=freeze_patch_blocks0-8 SEED=0"
+	@echo ""
 	@echo "  Cleanup:"
 	@echo "    clean                        remove __pycache__ and checkpoint caches"
 	@echo "    clean-results                delete all experiment results (results/)"
@@ -174,6 +177,16 @@ test-resnet:
 test-hybrid:
 	$(PYTHON) src/run_experiment.py --model hybrid --freeze-config freeze_none --seed 0 --epochs 1 --no-wandb
 
+# Reproduce a single (model, freeze-config, seed) cell of paper Table 4.
+# Defaults to the headline ViT result; override on the command line, e.g.
+#   make run-one MODEL=resnet CONFIG=freeze_conv1_layer1-3 SEED=10
+MODEL ?= vit
+CONFIG ?= freeze_patch_blocks0-8
+SEED ?= 0
+
+run-one:
+	$(PYTHON) src/run_experiment.py --model $(MODEL) --freeze-config $(CONFIG) --seed $(SEED)
+
 # Cleanup
 
 clean:
@@ -191,5 +204,5 @@ clean-results:
 	experiments-vit-win experiments-resnet-win experiments-hybrid-win experiments-all-win \
 	reproduce-paper \
 	analyse-vit analyse-resnet analyse-hybrid analyse-all \
-	test-vit test-resnet test-hybrid \
+	test-vit test-resnet test-hybrid run-one \
 	clean clean-results
