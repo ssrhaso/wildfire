@@ -84,7 +84,7 @@ def fmt_p(p: float) -> str:
 
 def section1():
     print("\n" + "=" * 70)
-    print("SECTION 1: ViT freeze_patch_b0-3 / b0-5")
+    print("SECTION 1: ViT freeze_patch_blocks0-3 / blocks0-5")
     print("=" * 70)
     for cfg in ("freeze_patch_blocks0-3", "freeze_patch_blocks0-5"):
         runs = load_runs("vit", cfg)
@@ -140,10 +140,10 @@ def section3():
     print("=" * 70)
     cases = [
         ("vit", "freeze_patch", "freeze_patch_blocks0-8",
-         "ViT freeze_patch vs freeze_patch_b0-8",
+         "ViT freeze_patch vs freeze_patch_blocks0-8",
          {"delta": 2.91, "p": 3.2e-7, "d": -13.1}),
         ("resnet", "freeze_conv1_layer1-3", "freeze_conv1_layer1-4",
-         "RN50 freeze_conv1_l1-3 vs freeze_conv1_l1-4",
+         "RN50 freeze_conv1_layer1-3 vs freeze_conv1_layer1-4",
          {"delta": 2.10, "p": 1.7e-5, "d": 6.40}),
         ("hybrid", "freeze_blocks0-8", "freeze_backbone_proj_blocks0-8",
          "Hybrid freeze_blocks0-8 vs freeze_backbone_proj_blocks0-8",
@@ -221,7 +221,7 @@ def section5():
         print(f"    {c1:25s} vs {c2:25s}  Δ={dpp:+.4f}pp  p={p:.3e}  d={d:+.2f} {flag}")
     # Verify the plateau claim
     all_l14 = all(("layer1-4" in c1) or ("layer1-4" in c2) for c1, c2, _, _, _ in sig)
-    print(f"\n  Claim 'all 4 sig pairs involve freeze_conv1_l1-4': {all_l14}")
+    print(f"\n  Claim 'all 4 sig pairs involve freeze_conv1_layer1-4': {all_l14}")
     print(f"  Claim '4 sig comparisons total': {len(sig)==4}")
 
 
