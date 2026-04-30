@@ -22,6 +22,9 @@ help:
 	@echo "    unzip-windows                extract dataset zips (Windows)"
 	@echo "    preprocess                   build processed dataset + labels.csv"
 	@echo ""
+	@echo "  Reproduction:"
+	@echo "    reproduce-paper              all 165 runs + analysis (Linux/macOS)"
+	@echo ""
 	@echo "  Experiments (Linux/macOS):"
 	@echo "    experiments-vit              ViT-B/16 freezing ablation"
 	@echo "    experiments-resnet           ResNet-50 freezing ablation"
@@ -126,6 +129,13 @@ experiments-hybrid-bnfrozen:
 experiments-all:
 	bash scripts/run_all.sh
 
+# Full paper reproduction: all 165 runs + statistical analysis.
+# Matches the run count reported in the paper abstract:
+#   ViT (6 configs) + ResNet (6 configs) + Hybrid (14 + 7 BN-frozen) = 33 configs x 5 seeds.
+reproduce-paper: experiments-vit experiments-resnet experiments-hybrid experiments-hybrid-bnfrozen analyse-all
+	@echo ""
+	@echo "  Reproduction complete. Compare results/analysis/*/summary.csv to paper Table 4."
+
 # Experiments (Windows)
 
 experiments-vit-win:
@@ -179,6 +189,7 @@ clean-results:
 	download unzip-linux unzip-windows preprocess \
 	experiments-vit experiments-resnet experiments-hybrid experiments-hybrid-bnfrozen experiments-all \
 	experiments-vit-win experiments-resnet-win experiments-hybrid-win experiments-all-win \
+	reproduce-paper \
 	analyse-vit analyse-resnet analyse-hybrid analyse-all \
 	test-vit test-resnet test-hybrid \
 	clean clean-results
