@@ -38,6 +38,8 @@ Other entry points:
 | `make experiments-vit`   | Run all 6 ViT freezing configs across 5 seeds (30 runs).                      |
 | `make reproduce-paper`   | Run the full 165-run sweep and regenerate all analysis (Linux/macOS).         |
 | `make analyse-all`       | Re-aggregate `results/<model>/` JSONs into `results/analysis/` CSVs and plots.|
+| `make gradcam MODEL=... CONFIG=... SEED=...` | Grad-CAM saliency overlays for one trained checkpoint (paper Figure 2). |
+| `make evaluate MODEL=... MODE=all`           | ROC curves and t-SNE feature plots across configs for one model. `MODE=roc` or `MODE=tsne` runs only one. |
 
 Replace `setup-linux` with `setup-windows`, and `experiments-*` with `experiments-*-win`, on Windows.
 

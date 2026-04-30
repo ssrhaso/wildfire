@@ -50,6 +50,10 @@ help:
 	@echo "  Single run (one cell of paper Table 4):"
 	@echo "    run-one MODEL=vit CONFIG=freeze_patch_blocks0-8 SEED=0"
 	@echo ""
+	@echo "  Post-hoc analysis (require a trained checkpoint):"
+	@echo "    gradcam   MODEL=vit CONFIG=freeze_patch_blocks0-8 SEED=0"
+	@echo "    evaluate  MODEL=vit MODE=all   # roc | tsne | all"
+	@echo ""
 	@echo "  Cleanup:"
 	@echo "    clean                        remove __pycache__ and checkpoint caches"
 	@echo "    clean-results                delete all experiment results (results/)"
@@ -187,6 +191,21 @@ SEED ?= 0
 run-one:
 	$(PYTHON) src/run_experiment.py --model $(MODEL) --freeze-config $(CONFIG) --seed $(SEED)
 
+# Grad-CAM saliency overlays for one (MODEL, CONFIG, SEED) cell of paper
+# Figure 2. Reuses the run-one defaults. Requires the matching checkpoint
+# at results/checkpoints/<model>/<config>/seed_<n>_best.pt; train it first
+# with `make run-one` if absent.
+gradcam:
+	$(PYTHON) src/gradcam.py --model $(MODEL) --freeze-config $(CONFIG) --seed $(SEED)
+
+# ROC and t-SNE feature-space plots across freeze configs for one model.
+# Reads checkpoints from results/checkpoints/<model>/, caches inference
+# outputs to .npz so plots can be regenerated cheaply.
+MODE ?= all
+
+evaluate:
+	$(PYTHON) src/evaluate.py --model $(MODEL) --mode $(MODE)
+
 # Cleanup
 
 clean:
@@ -205,4 +224,5 @@ clean-results:
 	reproduce-paper \
 	analyse-vit analyse-resnet analyse-hybrid analyse-all \
 	test-vit test-resnet test-hybrid run-one \
+	gradcam evaluate \
 	clean clean-results
