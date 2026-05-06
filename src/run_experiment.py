@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Hasaan Ahmad et al. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for full text.
+
 """Single-run experiment script for ViT-B/16 layer freezing ablation.
 
 Each invocation trains one freeze configuration with one seed.
