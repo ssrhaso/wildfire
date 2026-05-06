@@ -1,6 +1,4 @@
-# Fire-Freezing: Layer-Freezing Ablations of
-ViT-B/16, ResNet-50, and a Hybrid CNN-ViT for
-Wildfire Classification
+# Fire-Freezing: Layer-Freezing Ablations of ViT-B/16, ResNet-50, and a Hybrid CNN-ViT for Wildfire Classification
 
 This project investigates how progressive layer freezing during transfer learning affects classification performance for binary wildfire detection (fire vs. no fire). Three pretrained architectures (ViT-B/16, ResNet-50, and a Hybrid CNN-ViT) are systematically evaluated across multiple freezing configurations, each repeated over five random seeds for statistical rigour. The goal is to determine how much fine-tuning is actually necessary when adapting large vision models to a domain-specific task.
 
