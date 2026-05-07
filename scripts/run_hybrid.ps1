@@ -1,5 +1,5 @@
-# Copyright (c) Hasaan Ahmad et Al. 2026. All rights reserved.
-# Licensed under the MIT License.
+# Copyright (c) 2026 Hasaan Ahmad et al. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for full text.
 
 $Seeds = @(0, 5, 10, 15, 20)
 $Configs = @(

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Hasaan Ahmad et al. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for full text.
+
 Write-Host "Wildfire Freezing Ablation  All Models" -ForegroundColor Yellow
 Write-Host ""
 
