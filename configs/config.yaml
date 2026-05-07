@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Hasaan Ahmad et al. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for full text.
+
 hybrid_model:
   num_classes: 2
   dropout_rate: 0.1
