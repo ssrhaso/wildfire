@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Hasaan Ahmad et al. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for full text.
+
 """One-shot extraction of paper-ready stats from existing JSON results.
 
 Reads results/{model}/{config}/seed_*.json and prints copy-paste-ready
